@@ -170,7 +170,7 @@ for variable in spot_variables_df_custom["global_data_id"]:
     fig.update_layout(showlegend=False)
     config = {'staticPlot': True}
     
-    fig.update_layout(margin=dict(t=0, b=0, r=10))
+    fig.update_layout(margin=dict(t=0, b=0))
 
 
     st.sidebar.plotly_chart(fig, theme="streamlit", use_container_width=True, config = config)
