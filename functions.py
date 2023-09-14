@@ -56,17 +56,86 @@ def fetch_data_from_variable_from_spot(spot_id, global_data_id):
     spot_variable_data_df_clean = clear_empty_columns(spot_variable_data_df)
     return spot_variable_data_df_clean
 
-def plot_dataframe_lines(df):
-    pass
+# def plot_dataframe_lines(df):
+#     df = pd.DataFrame(df)
+#     columns_list = df.columns.to_list()
+#     x_column = columns_list[-1]
+#     y_columns = columns_list[:-1]
+#     for y_column in y_columns:
+#         plot_df = df[[x_column, y_column]]
+#         fig = px.line(plot_df, x=x_column, y=y_column)
+#         st.plotly_chart(fig, theme="streamlit")
+#         with st.expander("Visualizar tabela"):
+#             st.write(plot_df)
+
+
+def plot_dataframe_lines(df, variable_name, alarm_alert, alarm_critical):
     df = pd.DataFrame(df)
     columns_list = df.columns.to_list()
     x_column = columns_list[-1]
     y_columns = columns_list[:-1]
-    for y_column in y_columns:
-        plot_df = df[[x_column, y_column]]
-        fig = px.line(plot_df, x=x_column, y=y_column)
-        st.plotly_chart(fig, theme="streamlit")
-        with st.expander("Visualizar tabela"):
-            st.write(plot_df)
+    fig = px.line(df, x=x_column, y=y_columns)
+    
+    fig.add_shape(
+        type="line",
+        x0=df[x_column].min(),
+        x1=df[x_column].max(),
+        y0=alarm_alert,
+        y1=alarm_alert,
+        line=dict(color="orange", dash="dash"),
+        name=f'Linha Constante ({alarm_alert})')
+    
+    fig.add_shape(
+        type="line",
+        x0=df[x_column].min(),
+        x1=df[x_column].max(),
+        y0=alarm_critical,
+        y1=alarm_critical,
+        line=dict(color="red", dash="dash"),
+        name=f'Linha Constante ({alarm_critical})')
+    
+    fig.update_layout(
+        title=variable_name,
+        xaxis_title='Data e Hora',
+        yaxis_title='Valores',
+        height=250,
+    )
+    
+    st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
+
+def force_sidebar():
+    st.markdown(
+        """
+    <style>
+        [data-testid="baseButton-header"] {
+            display: none
+        }
+    </style>
+    """,
+        unsafe_allow_html=True)
+    
+def remove_header():
+    st.markdown(
+        """
+    <style>
+        [data-testid="stHeader"] {
+            display: none
+        }
+    </style>
+    """,
+        unsafe_allow_html=True)
+
+def remove_top_padding():
+    st.markdown(
+        """
+    <style>
+        [data-testid="block-container"] {
+            top: -80px;
+        }
+        
+    </style>
+    """,
+        unsafe_allow_html=True)
+    
 

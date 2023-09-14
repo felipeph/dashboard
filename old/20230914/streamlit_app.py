@@ -1,9 +1,6 @@
 # Biblioteca principal para geração da aplicação
 import streamlit as st
 
-import plotly.graph_objects as go
-
-
 from pathlib import Path
 
 import pandas as pd
@@ -16,7 +13,7 @@ from functions import fetch_spots_list, fetch_variables_from_spot, fetch_data_fr
 
 
 # Configurações básicas da página
-st.set_page_config(page_title="ACOPLAST Brasil",
+st.set_page_config(page_title="Dashboard ACOPLAST Brasil",
                    page_icon="favicon-acoplast.ico",
                    layout="wide",
                    initial_sidebar_state="expanded",)
@@ -35,7 +32,7 @@ spots_list_df = fetch_spots_list()
 with st.sidebar:
     
     # Logo da empresa
-    st.image("logo_acoplast.png", use_column_width=True)
+    st.image("logo_acoplast.png")
     
     st.header("Plataforma de Testes")
     
@@ -50,19 +47,14 @@ with st.sidebar:
     st.session_state.spot_id_selected = spot_id_selected["spot_id"].tolist()[0]
     
     
-st.title("ACODATA®    ‎ ‎ ‎Sistema de Monitoramento de Ativos")
-
 # Título da página
-st.header(f"{st.session_state.spot_selected_name}")
+st.header(f"Dashboard ACOPLAST Brasil: {st.session_state.spot_selected_name}")
 
 # Coletas as variáveis disponíves em um dado spot
 spot_variables_df_api = fetch_variables_from_spot(st.session_state.spot_id_selected)
 
 # Limpa as variáveis para apenas as que não são RMS 
 spot_variables_df_api = spot_variables_df_api.dropna(subset=['alarm_critical'])
-
-# Adicionar uma nova coluna com valores 0 para o dataframe
-spot_variables_df_api["last_value"] = 0
 
 csv_file_name = f"spot_{st.session_state.spot_id_selected}.csv"
 
@@ -90,15 +82,6 @@ for variable in spot_variables_df_custom["global_data_id"]:
     # Coleta dos dados de uma dada variável
     spot_variables_data_df = fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)
     
-    #st.write(spot_variables_data_df)
-    
-    last_row = spot_variables_data_df.iloc[-1]
-    
-    #st.sidebar.write(last_row["timestamp"])    
-    
-    
-    #st.sidebar.dataframe(last_row)
-    
     # Coleta o nome da variável em questão
     variable_name = spot_variables_df_custom[spot_variables_df_custom["global_data_id"] == variable]["global_data_name"].tolist()[0]
 
@@ -107,15 +90,6 @@ for variable in spot_variables_df_custom["global_data_id"]:
     #st.write(alarm_alert)
 
     alarm_critical = spot_variables_df_custom[spot_variables_df_custom["global_data_id"] == variable]["alarm_critical"].tolist()[0]
-    
-    
-    fig = go.Figure(go.Indicator(
-        mode = "gauge+number",
-        value = 270,
-        domain = {'x': [0, 1], 'y': [0, 1]},
-        title = {'text': "Speed"}))
-
-    #st.sidebar.plotly_chart(fig, use_container_width=True, theme="streamlit")
     
     #st.write(alarm_critical)
 
