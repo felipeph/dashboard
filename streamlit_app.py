@@ -43,6 +43,8 @@ with st.sidebar:
     st.session_state.spot_selected_name = st.radio(label="Sensores:",
                                                    options=spots_list_df["spot_name"])
     
+    st.write("Dados mais recentes:")
+    
     # Filtra o data frame para apenas a linha que contém o mesmo nome escolhido pelo usuário
     spot_id_selected = spots_list_df.loc[spots_list_df["spot_name"] == st.session_state.spot_selected_name]
     
@@ -92,9 +94,7 @@ for variable in spot_variables_df_custom["global_data_id"]:
     
     #st.write(spot_variables_data_df)
     
-    last_row = spot_variables_data_df.iloc[-1]
-    
-    #st.sidebar.write(last_row["timestamp"])    
+
     
     
     #st.sidebar.dataframe(last_row)
@@ -109,15 +109,75 @@ for variable in spot_variables_df_custom["global_data_id"]:
     alarm_critical = spot_variables_df_custom[spot_variables_df_custom["global_data_id"] == variable]["alarm_critical"].tolist()[0]
     
     
-    fig = go.Figure(go.Indicator(
-        mode = "gauge+number",
-        value = 270,
-        domain = {'x': [0, 1], 'y': [0, 1]},
-        title = {'text': "Speed"}))
+    # fig = go.Figure(go.Indicator(
+    #     mode = "gauge+number",
+    #     value = 270,
+    #     domain = {'x': [0, 1], 'y': [0, 1]},
+    #     title = {'text': "Speed"}))
+    
+    #fig.update_layout(height=200)
 
-    #st.sidebar.plotly_chart(fig, use_container_width=True, theme="streamlit")
+
+    last_row = spot_variables_data_df.iloc[-1]
+    
+    last_timestamp = last_row["timestamp"]
+    
+    last_row = last_row[:-1]
+    
+    #st.sidebar.write(last_row)
+    
+    #last_row["alarm_alert"] = alarm_alert
+    
+    #last_row["alarm_critical"] = alarm_critical
+    
+    #st.sidebar.write(last_row)
+    
+    last_row_columns_names = last_row.index.tolist()
+    
+    last_row_values = last_row.values.tolist()
+    
+    #st.sidebar.write(last_row_columns_names)
+
+    def assign_color(value):
+        if value > alarm_critical:
+            return "red"
+        elif value < alarm_alert:
+            return "green"
+        else:
+            return "gold"
+        
+    colors_list = last_row.apply(assign_color).tolist()
+    
+    #st.write(colors_list)
+    
+
+    fig = go.Figure(go.Bar(
+        x=last_row_values,
+        y=last_row_columns_names,
+        orientation='h',
+        marker_color=colors_list,
+        text=last_row_values,  # Use os valores como texto
+        textposition='outside',
+        insidetextanchor='end',
+        textangle=0,
+        texttemplate='%{text:.3f}',# Posicione o texto dentro das barras
+    ))    
+    
+    fig.add_vline(x=alarm_alert, line_dash="dash", line_color="gold")
+    fig.add_vline(x=alarm_critical, line_dash="dash", line_color="red")
+
+    fig.update_layout(height=100)
+    fig.update_layout(showlegend=False)
+    config = {'staticPlot': True}
+    
+    fig.update_layout(margin=dict(t=0, b=0, r=10))
+
+
+    st.sidebar.plotly_chart(fig, theme="streamlit", use_container_width=True, config = config)
     
     #st.write(alarm_critical)
+    
+    
 
     # Cria os gráficos um abaixo do outro    
     plot_dataframe_lines(spot_variables_data_df, variable_name, alarm_alert, alarm_critical)
@@ -141,13 +201,14 @@ for variable in spot_variables_df_custom["global_data_id"]:
                 spot_variables_df_custom.to_csv(csv_file_name, index=False)
                 #st.success("Dados alterados com sucesso")
                 st.experimental_rerun()
-                
+
+st.sidebar.caption(f"Atualizado em {last_timestamp}")               
 
 
 
 
-# while True:
-#     time.sleep(600)
-#     st.experimental_rerun()
+while True:
+    time.sleep(600)
+    st.experimental_rerun()
 
 
