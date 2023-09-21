@@ -1,4 +1,4 @@
 global_data_id,global_data_name,alarm_critical,alarm_alert,alarm_state,disable_alarm,trigger_condition,last_value
-655,VELOCIDADE,7.0,5.0,GREEN,0,1,0
+655,VELOCIDADE,7.0,4.0,GREEN,0,1,0
 656,ACELERAÇÃO,1.0,0.9,GREEN,0,1,0
 657,TEMPERATURA,85.0,33.0,GREEN,0,1,0

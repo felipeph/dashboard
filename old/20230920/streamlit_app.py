@@ -68,9 +68,11 @@ spot_variables_df_api["last_value"] = 0
 
 csv_file_name = f"spot_{st.session_state.spot_id_selected}.csv"
 
+#st.write(csv_file_name)
 
 csv_file_path = Path(csv_file_name)
 
+#st.write(csv_file_path)
 
 if csv_file_path.is_file():
     pass
@@ -81,36 +83,39 @@ else:
 
 spot_variables_df_custom = pd.read_csv(csv_file_name)
 
-
+#st.write(spot_variables_df_custom)
 
 # Loop para criação dos gráficos
 for variable in spot_variables_df_custom["global_data_id"]:
 
     
     # Coleta dos dados de uma dada variável
-    spot_variables_data_df = fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)    
+    spot_variables_data_df = fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)
     
+    #st.write(spot_variables_data_df)
+    
+
+    
+    
+    #st.sidebar.dataframe(last_row)
     
     # Coleta o nome da variável em questão
     variable_name = spot_variables_df_custom[spot_variables_df_custom["global_data_id"] == variable]["global_data_name"].tolist()[0]
-    
-    if variable_name == "VELOCIDADE":
-        variable_name = "Velocidade - mm/s"
-        df_header = ["Vertical", "Horizontal", "Axial", "timestamp"]
-    if variable_name == "ACELERAÇÃO":
-        variable_name = "Aceleração - g"
-        df_header = ["Vertical", "Horizontal", "Axial", "timestamp"]
-    if variable_name == "TEMPERATURA":
-        variable_name = "Temperatura - °C"
-        df_header = ["Temperatura", "timestamp"]
-        
-    spot_variables_data_df.columns = df_header
-    
-    number_of_variables = len(df_header)
-    
+
     alarm_alert = spot_variables_df_custom[spot_variables_df_custom["global_data_id"] == variable]["alarm_alert"].tolist()[0]
+    
+    #st.write(alarm_alert)
 
     alarm_critical = spot_variables_df_custom[spot_variables_df_custom["global_data_id"] == variable]["alarm_critical"].tolist()[0]
+    
+    
+    # fig = go.Figure(go.Indicator(
+    #     mode = "gauge+number",
+    #     value = 270,
+    #     domain = {'x': [0, 1], 'y': [0, 1]},
+    #     title = {'text': "Speed"}))
+    
+    #fig.update_layout(height=200)
 
 
     last_row = spot_variables_data_df.iloc[-1]
@@ -118,14 +123,20 @@ for variable in spot_variables_df_custom["global_data_id"]:
     last_timestamp = last_row["timestamp"]
     
     last_row = last_row[:-1]
-       
+    
+    #st.sidebar.write(last_row)
+    
+    #last_row["alarm_alert"] = alarm_alert
+    
+    #last_row["alarm_critical"] = alarm_critical
+    
+    #st.sidebar.write(last_row)
+    
     last_row_columns_names = last_row.index.tolist()
     
     last_row_values = last_row.values.tolist()
-
-    values_to_evalute = last_row_values + [float(alarm_critical)]
-
-    max_x_value = max(values_to_evalute)
+    
+    #st.sidebar.write(last_row_columns_names)
 
     def assign_color(value):
         if value > alarm_critical:
@@ -136,6 +147,8 @@ for variable in spot_variables_df_custom["global_data_id"]:
             return "gold"
         
     colors_list = last_row.apply(assign_color).tolist()
+    
+    #st.write(colors_list)
     
 
     fig = go.Figure(go.Bar(
@@ -150,53 +163,52 @@ for variable in spot_variables_df_custom["global_data_id"]:
         texttemplate='%{text:.3f}',# Posicione o texto dentro das barras
     ))    
     
-    fig.update_xaxes(range=[0, max_x_value*1.2])
-    
     fig.add_vline(x=alarm_alert, line_dash="dash", line_color="gold")
     fig.add_vline(x=alarm_critical, line_dash="dash", line_color="red")
 
-    fig.update_layout(height=number_of_variables*30)
-    #fig.update_layout(title=variable_name)
+    fig.update_layout(height=100)
     fig.update_layout(showlegend=False)
     config = {'staticPlot': True}
     
-    
-    
     fig.update_layout(margin=dict(t=0, b=0))
 
-    st.sidebar.subheader(variable_name)
+
     st.sidebar.plotly_chart(fig, theme="streamlit", use_container_width=True, config = config)
     
+    #st.write(alarm_critical)
     
-    with st.container():
-        column_plot, column_config = st.columns([0.8, 0.2], gap="small")
-        with column_plot:
-        
-            plot_dataframe_lines(spot_variables_data_df, variable_name, alarm_alert, alarm_critical)
-        
-        with column_config:
-            with st.expander("Configurações do gráfico:"):
-                with st.form(key=variable_name):
-                    alarm_alert_custom = st.number_input(label="Alarme de Alerta", 
-                                                        value=alarm_alert,
-                                                        key=variable_name+"alarm_alert")
-                    alarm_critical_custom = st.number_input(label="Alarme Crítico", 
-                                                            value=alarm_critical,
-                                                            key=variable_name+"alarm_critical")
-                    alarm_settings_changed = st.form_submit_button("Salvar")
-                    if alarm_settings_changed:
-                        spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_alert"] = alarm_alert_custom
-                        spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_critical"] = alarm_critical_custom
-                        spot_variables_df_custom.to_csv(csv_file_name, index=False)
-                        st.experimental_rerun()
+    
+
+    # Cria os gráficos um abaixo do outro    
+    plot_dataframe_lines(spot_variables_data_df, variable_name, alarm_alert, alarm_critical)
+    
+    with st.expander("Configurações do gráfico:"):
+        with st.form(key=variable_name):
+            col1, col2 = st.columns(2)
+            with col1:    
+                alarm_alert_custom = st.number_input(label="Alarme de Alerta", 
+                                                    value=alarm_alert,
+                                                    key=variable_name+"alarm_alert")
+            with col2:
+                alarm_critical_custom = st.number_input(label="Alarme Crítico", 
+                                                        value=alarm_critical,
+                                                        key=variable_name+"alarm_critical")
+            alarm_settings_changed = st.form_submit_button("Salvar")
+            if alarm_settings_changed:
+                spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_alert"] = alarm_alert_custom
+                spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_critical"] = alarm_critical_custom
+                #st.write(spot_variables_df_custom)
+                spot_variables_df_custom.to_csv(csv_file_name, index=False)
+                #st.success("Dados alterados com sucesso")
+                st.experimental_rerun()
 
 st.sidebar.caption(f"Atualizado em {last_timestamp}")               
 
 
 
 
-# while True:
-#     time.sleep(600)
-#     st.experimental_rerun()
+while True:
+    time.sleep(600)
+    st.experimental_rerun()
 
 

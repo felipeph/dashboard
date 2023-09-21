@@ -93,13 +93,24 @@ def plot_dataframe_lines(df, variable_name, alarm_alert, alarm_critical):
         y1=alarm_critical,
         line=dict(color="red", dash="dash"),
         name=f'Linha Constante ({alarm_critical})')
+
+    fig.update_layout(legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=1.02,
+        xanchor="right",
+        x=1,
+        title=""
+    ))
+
     
     fig.update_layout(
         title=variable_name,
         xaxis_title='Data e Hora',
-        yaxis_title='Valores',
+        yaxis_title=variable_name, # Trocar 
         height=250,
     )
+    
     
     st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
