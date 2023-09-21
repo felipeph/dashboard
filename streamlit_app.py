@@ -12,7 +12,7 @@ import pandas as pd
 import time
 
 # Conjunto de funções em código separado
-from functions import fetch_spots_list, fetch_variables_from_spot, fetch_data_from_variable_from_spot, plot_dataframe_lines, remove_header, remove_top_padding
+from functions import fetch_spots_list, fetch_variables_from_spot, fetch_data_from_variable_from_spot, plot_dataframe_lines, remove_header, remove_top_padding, remove_manage_app
 
 
 # Configurações básicas da página
@@ -24,6 +24,7 @@ st.set_page_config(page_title="ACOPLAST Brasil",
 # CSS Hacks para remover cabeçalho padrão e posicionar as coisas direito
 remove_header()
 remove_top_padding()
+remove_manage_app()
 
 # Coleta da chave API cadastrada no secrets do streamlit
 chave_api = st.secrets["chave_api"]

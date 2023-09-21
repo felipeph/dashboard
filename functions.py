@@ -149,4 +149,14 @@ def remove_top_padding():
     """,
         unsafe_allow_html=True)
     
+def remove_manage_app():
+    st.markdown(
+        """
+    <style>
+        [data-testid="manage-app-button"] {
+            display: none
+        }
+    </style>
+    """,
+        unsafe_allow_html=True)
 
