@@ -58,6 +58,10 @@ with st.sidebar:
     
 # st.title("ACODATA®    ‎ ‎ ‎Sistema de Monitoramento de Ativos")
 
+# st.header("Teste")
+
+st.divider()
+
 # Título da página
 st.header(f"{st.session_state.spot_selected_name}")
 
