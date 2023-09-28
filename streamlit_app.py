@@ -12,8 +12,7 @@ import pandas as pd
 import time
 
 # Conjunto de funções em código separado
-from functions import fetch_spots_list, fetch_variables_from_spot, fetch_data_from_variable_from_spot, plot_dataframe_lines, remove_header, remove_top_padding, remove_manage_app
-
+import functions as f
 
 # Configurações básicas da página
 st.set_page_config(page_title="ACOPLAST Brasil",
@@ -22,15 +21,19 @@ st.set_page_config(page_title="ACOPLAST Brasil",
                    initial_sidebar_state="expanded",)
 
 # CSS Hacks para remover cabeçalho padrão e posicionar as coisas direito
-remove_header()
-remove_top_padding()
-remove_manage_app()
+#f.remove_header()
+#f.remove_top_padding()
+f.remove_footer()
+f.remove_toolbar()
+f.change_header_background()
+f.remove_top_padding()
+
 
 # Coleta da chave API cadastrada no secrets do streamlit
 chave_api = st.secrets["chave_api"]
 
 # Criação do Dataframe com os dados coletados da lista de spots
-spots_list_df = fetch_spots_list()
+spots_list_df = f.fetch_spots_list()
 
 # Itens da barra lateral
 with st.sidebar:
@@ -38,10 +41,10 @@ with st.sidebar:
     # Logo da empresa
     st.image("logo_acoplast.png", use_column_width=True)
     
-    st.header("Plataforma de Testes")
+    st.header("ACODATA® CÓDIGO: 645205") # Colocar como parâmetro
     
     # Lista de itens para escolha
-    st.session_state.spot_selected_name = st.radio(label="Sensores:",
+    st.session_state.spot_selected_name = st.radio(label="PONTOS DE MONITORAMENTO",
                                                    options=spots_list_df["spot_name"])
     
     st.write("Dados mais recentes:")
@@ -53,13 +56,13 @@ with st.sidebar:
     st.session_state.spot_id_selected = spot_id_selected["spot_id"].tolist()[0]
     
     
-st.title("ACODATA®    ‎ ‎ ‎Sistema de Monitoramento de Ativos")
+# st.title("ACODATA®    ‎ ‎ ‎Sistema de Monitoramento de Ativos")
 
 # Título da página
 st.header(f"{st.session_state.spot_selected_name}")
 
 # Coletas as variáveis disponíves em um dado spot
-spot_variables_df_api = fetch_variables_from_spot(st.session_state.spot_id_selected)
+spot_variables_df_api = f.fetch_variables_from_spot(st.session_state.spot_id_selected)
 
 # Limpa as variáveis para apenas as que não são RMS 
 spot_variables_df_api = spot_variables_df_api.dropna(subset=['alarm_critical'])
@@ -89,7 +92,7 @@ for variable in spot_variables_df_custom["global_data_id"]:
 
     
     # Coleta dos dados de uma dada variável
-    spot_variables_data_df = fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)    
+    spot_variables_data_df = f.fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)    
     
     
     # Coleta o nome da variável em questão
@@ -173,7 +176,7 @@ for variable in spot_variables_df_custom["global_data_id"]:
         column_plot, column_config = st.columns([0.8, 0.2], gap="small")
         with column_plot:
         
-            plot_dataframe_lines(spot_variables_data_df, variable_name, alarm_alert, alarm_critical)
+            f.plot_dataframe_lines(spot_variables_data_df, variable_name, alarm_alert, alarm_critical)
         
         with column_config:
             with st.expander("Configurações do gráfico:"):

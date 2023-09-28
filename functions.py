@@ -160,3 +160,38 @@ def remove_manage_app():
     """,
         unsafe_allow_html=True)
 
+def remove_footer():
+    st.markdown(
+        """
+    <style>
+        footer {
+            display: none;
+        }
+    </style>
+    """,
+        unsafe_allow_html=True)
+
+def remove_toolbar():
+    st.markdown(
+        """
+    <style>
+        [data-testid="stToolbar"] {
+            display: none
+        }
+    </style>
+    """,
+        unsafe_allow_html=True)
+    
+def change_header_background():
+    st.markdown("""
+    <style>
+        [data-testid="stHeader"] {
+            background-image: url('https://i.ibb.co/N2gvrns/headerlogo.png'); /* Substitua pelo caminho da sua imagem */
+            background-size: 70% auto; /* Isso ajustará a imagem para cobrir toda a área do header */
+            background-repeat: no-repeat;
+            background-position: right; /* Isso centralizará a imagem no header */
+            height: 150px; 
+        }
+    </style>
+    """,
+        unsafe_allow_html=True)
