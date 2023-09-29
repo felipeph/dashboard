@@ -43,13 +43,13 @@ with st.sidebar:
     
     st.header("ACODATA® CÓDIGO: 645205") # Colocar como parâmetro
     
-    st.image("pontos_monitoramento.png")
+    #st.image("pontos_monitoramento.png")
     
     # Lista de itens para escolha
-    st.session_state.spot_selected_name = st.radio(label="PONTOS DE MONITORAMENTO",
+    st.session_state.spot_selected_name = st.radio(label="**PONTOS DE MONITORAMENTO**",
                                                    options=spots_list_df["spot_name"])
     
-    st.write("Dados mais recentes:")
+    # st.write("Dados mais recentes:")
     
     # Filtra o data frame para apenas a linha que contém o mesmo nome escolhido pelo usuário
     spot_id_selected = spots_list_df.loc[spots_list_df["spot_name"] == st.session_state.spot_selected_name]
@@ -165,7 +165,7 @@ with center_column:
             texttemplate='%{text:.3f}',# Posicione o texto dentro das barras
         ))    
         
-        fig.update_xaxes(range=[0, max_x_value*1.2])
+        fig.update_xaxes(range=[0, max_x_value*1.4])
         
         fig.add_vline(x=alarm_alert, line_dash="dash", line_color="gold")
         fig.add_vline(x=alarm_critical, line_dash="dash", line_color="red")
@@ -178,6 +178,10 @@ with center_column:
         
         
         fig.update_layout(margin=dict(t=0, b=0))
+
+        fig.update_layout(font=dict(size=16, color="black"))
+        
+        fig.update_layout(yaxis=dict(tickfont=dict(size=16, color="black")))
 
         st.sidebar.subheader(variable_name)
         st.sidebar.plotly_chart(fig, theme="streamlit", use_container_width=True, config = config)
@@ -240,9 +244,12 @@ with center_column:
     
 
 with right_column:
-    st.subheader("Imagem do sensor")
+    #st.subheader("Imagem do sensor")
+    st.markdown("**Pontos de Monitoramento**")
+    st.image("pontos_monitoramento.png")
+    st.markdown("**Ponto Monitorado**")
     st.image(f"images/{st.session_state.spot_id_selected}.png")
-    st.subheader("Detalhes do sensor")
+    #st.subheader("Detalhes do sensor")
     spots_filter = spots_list_df['spot_id'] == st.session_state.spot_id_selected
     spots_list_filtered = spots_list_df.loc[spots_filter]
     sensor_id = spots_list_filtered['sensor_id'].values[0]
@@ -251,7 +258,7 @@ with right_column:
     connection_status = spots_list_filtered['connection_status'].values[0]
     
     
-    st.info(f"Código do Sensor: **{sensor_id}**")
+    st.info(f"Sensor: **ACOSVT-{int(st.session_state.spot_id_selected)-218}**")
     
     st.info(f'''
             Último dado recebido em  
@@ -262,12 +269,12 @@ with right_column:
     if connection_status == "gateway_not_connected":
         st.error("**Gateway Desconectado**")
     
-    if alarm_status == "GREEN":
-        st.success("**Nível Operacional**")
-    if alarm_status == "YELLOW":
-        st.warning("**Nível de Alerta**")
-    if alarm_status == "RED":
-        st.error("**Nível Crítico**")
+    # if alarm_status == "GREEN":
+    #     st.success("**Nível Operacional**")
+    # if alarm_status == "YELLOW":
+    #     st.warning("**Nível de Alerta**")
+    # if alarm_status == "RED":
+    #     st.error("**Nível Crítico**")
         
     st.progress(value=battery_level, text=f"Nível de Bateria {battery_level}%")
     
