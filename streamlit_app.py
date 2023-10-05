@@ -59,7 +59,7 @@ header = st.container()
 header_left_col, header_center_col, header_right_col = header.columns([2,6,2], gap="small")
 header_left_col.image("logo_acoplast.png", use_column_width=True)
 header_center_col.markdown("""<div align="center"><h1 style="color:#2A4B80;">ACODATA® - Sistema de Monitoramento de Ativos</h1></div>""", unsafe_allow_html=True)
-#header_right_col.image("logo_usiminas.png", use_column_width="auto")
+header_right_col.image("logo_usiminas.png", use_column_width="auto")
 header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
 ### Custom CSS for the sticky header
 st.markdown(
@@ -90,7 +90,7 @@ st.markdown(
 #...................... COLUMNS OF THE BODY ............................................
 # The body of the page with three columns
 body = st.container()
-body_left_col, body_center_col, body_right_col = body.columns([2,6,2], gap="small")
+body_left_col, body_center_col = body.columns([2,8], gap="small")
 #---------------------------------------------------------------------------------------
 
 
@@ -361,41 +361,41 @@ with body_center_col:
 
 
 
-with body_right_col:
+# with body_right_col:
         
-    #st.subheader("Imagem do sensor")
-    st.markdown("**Pontos de Monitoramento**")
-    st.image("pontos_monitoramento.png")
-    #st.markdown("**Ponto Monitorado**")
-    #st.image(f"images/{st.session_state.spot_id_selected}.png")
-    #st.subheader("Detalhes do sensor")
-    spots_filter = spots_list_df['spot_id'] == st.session_state.spot_id_selected
-    spots_list_filtered = spots_list_df.loc[spots_filter]
-    sensor_id = spots_list_filtered['sensor_id'].values[0]
-    alarm_status = spots_list_filtered['alarm_status'].values[0]
-    battery_level = int(spots_list_filtered['battery_level'].values[0])
-    connection_status = spots_list_filtered['connection_status'].values[0]
+#     #st.subheader("Imagem do sensor")
+#     st.markdown("**Pontos de Monitoramento**")
+#     st.image("pontos_monitoramento.png")
+#     #st.markdown("**Ponto Monitorado**")
+#     #st.image(f"images/{st.session_state.spot_id_selected}.png")
+#     #st.subheader("Detalhes do sensor")
+#     spots_filter = spots_list_df['spot_id'] == st.session_state.spot_id_selected
+#     spots_list_filtered = spots_list_df.loc[spots_filter]
+#     sensor_id = spots_list_filtered['sensor_id'].values[0]
+#     alarm_status = spots_list_filtered['alarm_status'].values[0]
+#     battery_level = int(spots_list_filtered['battery_level'].values[0])
+#     connection_status = spots_list_filtered['connection_status'].values[0]
     
     
-    #st.info(f"Sensor: **ACOSVT-{int(st.session_state.spot_id_selected)-218}**")
+#     #st.info(f"Sensor: **ACOSVT-{int(st.session_state.spot_id_selected)-218}**")
     
-    # st.info(f'''
-    #         Último dado recebido em  
-    #         **{last_timestamp}**''')
+#     # st.info(f'''
+#     #         Último dado recebido em  
+#     #         **{last_timestamp}**''')
     
-    if connection_status == "connected":
-        st.success("**Sensor Conectado**")
-    if connection_status == "gateway_not_connected":
-        st.error("**Gateway Desconectado**")
+#     if connection_status == "connected":
+#         st.success("**Sensor Conectado**")
+#     if connection_status == "gateway_not_connected":
+#         st.error("**Gateway Desconectado**")
     
-    # if alarm_status == "GREEN":
-    #     st.success("**Nível Operacional**")
-    # if alarm_status == "YELLOW":
-    #     st.warning("**Nível de Alerta**")
-    # if alarm_status == "RED":
-    #     st.error("**Nível Crítico**")
+#     # if alarm_status == "GREEN":
+#     #     st.success("**Nível Operacional**")
+#     # if alarm_status == "YELLOW":
+#     #     st.warning("**Nível de Alerta**")
+#     # if alarm_status == "RED":
+#     #     st.error("**Nível Crítico**")
         
-    st.progress(value=battery_level, text=f"Nível de Bateria {battery_level}%")
+#     st.progress(value=battery_level, text=f"Nível de Bateria {battery_level}%")
     
 
 with body_left_col:    
