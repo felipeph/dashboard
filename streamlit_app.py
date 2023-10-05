@@ -173,7 +173,7 @@ with body_center_col:
     with tab_plots:
 
     
-        st.subheader(f"{st.session_state.spot_selected_name}")    
+        st.markdown(f"#### {st.session_state.spot_selected_name}")    
         # Loop para criação dos gráficos
         for variable in spot_variables_df_custom["global_data_id"]:
 
