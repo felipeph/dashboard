@@ -374,7 +374,7 @@ with body_right_col:
     connection_status = spots_list_filtered['connection_status'].values[0]
     
     
-    st.info(f"Sensor: **ACOSVT-{int(st.session_state.spot_id_selected)-218}**")
+    #st.info(f"Sensor: **ACOSVT-{int(st.session_state.spot_id_selected)-218}**")
     
     # st.info(f'''
     #         Último dado recebido em  
