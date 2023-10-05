@@ -58,7 +58,7 @@ spots_list_df = f.fetch_spots_list()
 header = st.container()
 header_left_col, header_center_col, header_right_col = header.columns([2,6,2], gap="small")
 header_left_col.image("logo_acoplast.png", use_column_width=True)
-header_center_col.markdown("""<div align="left"><h1 style="color:#2A4B80; display: inline">ACODATA®</h1><h6 style="color:#2A4B80; display: inline">CÓDIGO: 645205</h6></div>""", unsafe_allow_html=True)
+#header_center_col.markdown("""<div align="left"><h1 style="color:#2A4B80; display: inline">ACODATA®</h1><h6 style="color:#2A4B80; display: inline">CÓDIGO: 645205</h6></div>""", unsafe_allow_html=True)
 #header_right_col.image("logo_usiminas.png", use_column_width="auto")
 header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
 ### Custom CSS for the sticky header
@@ -107,6 +107,8 @@ body_left_col, body_center_col = body.columns([2,8], gap="small")
 with body_left_col:
     
     #st.subheader("CÓDIGO: 645205")
+    
+    st.markdown("""<div align="left"><h1 style="color:#2A4B80; display: inline">ACODATA®</h1><h5 style="color:#2A4B80; ">CÓDIGO: 645205</h5></div>""", unsafe_allow_html=True)
     
     st.markdown("###### PLATAFORMA DE MONITORAMENTO - 07")
     
