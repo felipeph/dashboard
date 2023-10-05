@@ -158,13 +158,16 @@ spot_variables_df_custom = pd.read_csv(csv_file_name)
 # ................ CENTRAL COLUMN: PLOTS ...................................................................
 with body_center_col:
     
-    tab_plots, tab_config = st.tabs(["GRÁFICOS", "CONFIGURAÇÕES"])
+    tab_image, tab_plots, tab_config = st.tabs(["PONTOS DE MONITORAMENTO", "GRÁFICOS", "CONFIGURAÇÕES"])
     
     with tab_config:
         tab_config_col_1, tab_config_col_2, tab_config_col_3 = st.columns(3)
         
         with tab_config_col_1:
             st.markdown("###### Níveis de Alerta")
+            
+    with tab_image:
+        st.image("pontos_monitoramento.png")
     
     with tab_plots:
 
