@@ -142,7 +142,7 @@ def remove_top_padding():
         """
     <style>
         [data-testid="block-container"] {
-            top: -80px;
+            top: -140px;
         }
         
     </style>
