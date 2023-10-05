@@ -167,7 +167,7 @@ with body_center_col:
             st.markdown("###### Níveis de Alerta")
             
     with tab_image:
-        st.image("pontos_monitoramento.png")
+        st.image("pontos_monitoramento.png", use_column_width=True)
     
     with tab_plots:
 
