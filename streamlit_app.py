@@ -58,7 +58,7 @@ spots_list_df = f.fetch_spots_list()
 header = st.container()
 header_left_col, header_center_col, header_right_col = header.columns([2,6,2], gap="small")
 header_left_col.image("logo_acoplast.png", use_column_width=True)
-header_center_col.markdown("""<div align="left"><h1 style="color:#2A4B80; display: inline">ACODATA®</h1><h6 style="color:#2A4B80; display: inline">CÓDIGO: 645205</h6></div>""", unsafe_allow_html=True)
+header_center_col.markdown("""<div align="left"><h1 style="color:#2A4B80;">ACODATA®</h1><h6 style="color:#2A4B80;">CÓDIGO: 645205</h6></div>""", unsafe_allow_html=True)
 #header_right_col.image("logo_usiminas.png", use_column_width="auto")
 header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
 ### Custom CSS for the sticky header
