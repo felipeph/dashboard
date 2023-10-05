@@ -105,7 +105,7 @@ body_left_col, body_center_col = body.columns([2,8], gap="small")
 # ....................... LEFT COLUMN: SELECT SPOT  .........................................................
 with body_left_col:
     
-    st.subheader("ACODATA® CÓDIGO: 645205")
+    st.subheader("CÓDIGO: 645205")
     
     st.markdown("###### PLATAFORMA DE MONITORAMENTO - 07")
     
