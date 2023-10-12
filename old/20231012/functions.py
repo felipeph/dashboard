@@ -19,26 +19,10 @@ def clear_empty_columns(dataframe):
     return df.dropna(axis=1, how="all")
 
 @st.cache_data
-def fetch_spots_list(api_key):
-    """
-    Fetch the list of spots available for this API key.
-    
-    Args:
-        api_key (str): The API key for the installation.
-        
-    Returns:
-        df (pandas dataframe): The Dataframe created with the response for the request of the API.
-    
-    Details:
-        - Access the url https://api.iotebe.com/v2/spot with api-key as parameter.
-        - Uses a requests.get to get a response for the request.
-        - Open the response as JSON
-        - Create a Pandas DataFrame from the JSON
-    
-    """
+def fetch_spots_list():
     url = "https://api.iotebe.com/v2/spot"
     headers = {
-        "x-api-key": api_key,
+        "x-api-key": st.secrets["chave_api"],
         "Accept": "application/json"
     }
     spots_list_response = requests.get(url, headers=headers)
@@ -118,3 +102,85 @@ def plot_dataframe_lines(df, variable_name, alarm_alert, alarm_critical):
     
     
     st.plotly_chart(fig, theme="streamlit", use_container_width=True)
+
+
+def force_sidebar():
+    st.markdown(
+        """
+    <style>
+        [data-testid="baseButton-header"] {
+            display: none
+        }
+    </style>
+    """,
+        unsafe_allow_html=True)
+    
+def remove_header():
+    st.markdown(
+        """
+    <style>
+        [data-testid="stHeader"] {
+            display: none
+        }
+    </style>
+    """,
+        unsafe_allow_html=True)
+
+def remove_top_padding():
+    st.markdown(
+        """
+    <style>
+        [data-testid="block-container"] {
+            top: -140px;
+        }
+        
+    </style>
+    """,
+        unsafe_allow_html=True)
+    
+def remove_manage_app():
+    st.markdown(
+        """
+    <style>
+        [data-testid="manage-app-button"] {
+            display: none
+        }
+    </style>
+    """,
+        unsafe_allow_html=True)
+
+def remove_footer():
+    st.markdown(
+        """
+    <style>
+        footer {
+            display: none;
+        }
+    </style>
+    """,
+        unsafe_allow_html=True)
+
+def remove_toolbar():
+    st.markdown(
+        """
+    <style>
+        [data-testid="stToolbar"] {
+            display: none
+        }
+    </style>
+    """,
+        unsafe_allow_html=True)
+    
+def change_header_background():
+    st.markdown("""
+    <style>
+        [data-testid="stHeader"] {
+            background-image: url('https://i.ibb.co/N2gvrns/headerlogo.png'); /* Substitua pelo caminho da sua imagem */
+            background-size: 70% auto; /* Isso ajustará a imagem para cobrir toda a área do header */
+            background-repeat: no-repeat;
+            background-position: right; /* Isso centralizará a imagem no header */
+            height: 150px; 
+        }
+    </style>
+    """,
+        unsafe_allow_html=True)

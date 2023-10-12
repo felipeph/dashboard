@@ -1,26 +1,18 @@
-# Streamlit to create the page
 import streamlit as st
 
-# My functions 
+# Conjunto de funções em código separado
 import functions as f
 
-# Plotly to change elements in the plot
 import plotly.graph_objects as go
 
-# Pathlib to locate the CSV files
 from pathlib import Path
 
-# Pandas to manipulate the data
 import pandas as pd
 
-# Time to reload the app every 10 min
+# Utilizada para fazer o reload da página a cada 10 minutos
 import time
 
-# My functions for style
-import func_style as fs
 
-# My functions for data
-import func_data as fd
 
 
 #........................ PAGE CONFIGURATION ............................................
@@ -32,7 +24,9 @@ st.set_page_config(page_title="ACOPLAST Brasil",
                    )
 
 # Removing the header and the footer
-fs.remove_streamlit_elements()
+f.remove_footer()
+f.remove_header()
+f.remove_top_padding()
 #---------------------------------------------------------------------------------------
 
 
@@ -45,10 +39,10 @@ fs.remove_streamlit_elements()
 
 #......................... FIRST API CALL ..............................................
 # Coleta da chave API cadastrada no secrets do streamlit
-api_key = st.secrets["chave_api"]
+chave_api = st.secrets["chave_api"]
 
 # Criação do Dataframe com os dados coletados da lista de spots
-spots_list_df = f.fetch_spots_list(api_key)
+spots_list_df = f.fetch_spots_list()
 #---------------------------------------------------------------------------------------
 
 
@@ -62,15 +56,29 @@ spots_list_df = f.fetch_spots_list(api_key)
 #......................... HEADER ......................................................
 # Sticky header with the logo and title of the page
 header = st.container()
-
-with header:
-    header_left_col, header_center_col, header_right_col = header.columns([3,5,2], gap="small")
-    header_left_col.image("logo_acoplast.png", use_column_width=True)
-    #header_center_col.markdown("""<div align="left"><h1 style="color:#2A4B80; display: inline">ACODATA®</h1><h6 style="color:#2A4B80; display: inline">CÓDIGO: 645205</h6></div>""", unsafe_allow_html=True)
-    #header_right_col.image("logo_usiminas.png", use_column_width="auto")
-    header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
-    ### Custom CSS for the sticky header
-    fs.sticky_header()
+header_left_col, header_center_col, header_right_col = header.columns([2,6,2], gap="small")
+header_left_col.image("logo_acoplast.png", use_column_width=True)
+#header_center_col.markdown("""<div align="left"><h1 style="color:#2A4B80; display: inline">ACODATA®</h1><h6 style="color:#2A4B80; display: inline">CÓDIGO: 645205</h6></div>""", unsafe_allow_html=True)
+#header_right_col.image("logo_usiminas.png", use_column_width="auto")
+header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
+### Custom CSS for the sticky header
+st.markdown(
+    """
+<style>
+    div[data-testid="stVerticalBlock"] div:has(div.fixed-header) {
+        position: sticky;
+        top: 0rem;
+        background-color: white;
+        z-index: 999;
+        bottom: 
+    }
+    .fixed-header {
+        border-bottom: 1px solid #2A4B80;
+    }
+</style>
+    """,
+    unsafe_allow_html=True
+)
 #---------------------------------------------------------------------------------------
 
 
@@ -83,8 +91,7 @@ with header:
 #...................... COLUMNS OF THE BODY ............................................
 # The body of the page with three columns
 body = st.container()
-with body:
-    body_left_col, body_center_col = body.columns([3,7], gap="small")
+body_left_col, body_center_col = body.columns([2,8], gap="small")
 #---------------------------------------------------------------------------------------
 
 
@@ -116,8 +123,6 @@ with body_left_col:
     
     # Dentro da do novo data frame, pega apenas o valor que está na coluna spot_id
     st.session_state.spot_id_selected = spot_id_selected["spot_id"].tolist()[0]
-    
-    csv_file_name = f"spot_{st.session_state.spot_id_selected}.csv"
 # ---------------------------------------------------------------------------------------------------------
 
 
@@ -130,10 +135,21 @@ with body_left_col:
 
 # ................... GET VARIABLES FROM THE SPOT .........................................................
 # Coletas as variáveis disponíves em um dado spot
-spot_variables_df_api = fd.fetch_variables_from_spot(st.session_state.spot_id_selected, api_key)
+spot_variables_df_api = f.fetch_variables_from_spot(st.session_state.spot_id_selected)
 
-spot_variables_df_custom = fd.csv_for_spot_variables(spot_variables_df_api, csv_file_name)
+# Limpa as variáveis para apenas as que não são RMS 
+spot_variables_df_api = spot_variables_df_api.dropna(subset=['alarm_critical'])
 
+csv_file_name = f"spot_{st.session_state.spot_id_selected}.csv"
+
+csv_file_path = Path(csv_file_name)
+
+if csv_file_path.is_file():
+    pass
+else:
+    spot_variables_df_api.to_csv(csv_file_name, index=False)
+
+spot_variables_df_custom = pd.read_csv(csv_file_name)
 # ---------------------------------------------------------------------------------------------------------
 
 
@@ -158,51 +174,16 @@ with body_center_col:
     
     with tab_plots:
         
-        # tab_plot_24hrs, tab_plot_7days, tab_plot_15days = st.tabs(["24 horas", "7 dias", "15 dias"])
+        tab_plot_24hrs, tab_plot_7days, tab_plot_30days = st.tabs(["24 horas", "7 dias", "30 dias"])
 
-        # with tab_plot_24hrs:
-        #     date_interval = 1
-        #     st.write(date_interval)
-        
-        # with tab_plot_7days:
-        #     date_interval = 7
-        #     st.write(date_interval)
-        
-        # with tab_plot_15days:
-        #     date_interval = 15
-        #     st.write(date_interval)
     
-        # st.number_input(label=)
-        
         st.markdown(f"#### {st.session_state.spot_selected_name}")    
         # Loop para criação dos gráficos
-        
-        # date_interval = st.number_input(label="Quantidade de dias analisados",
-        #                                 min_value=1,
-        #                                 max_value=15,
-        #                                 value=1,
-        #                                 step=1,)
-        
-        date_interval_options ={
-            1 : "24 horas",
-            7 : "7 dias",
-            15 : "15 dias",
-        }
-        
-        
-        date_interval = st.radio(label="Quantidade de dias analisados",
-                                 options=(1, 7, 15),
-                                 format_func= lambda x: date_interval_options.get(x),
-                                 horizontal=True,
-                                 label_visibility="collapsed",
-                                 )
-        
         for variable in spot_variables_df_custom["global_data_id"]:
 
             
             # Coleta dos dados de uma dada variável
-            #spot_variables_data_df = fd.fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)    
-            spot_variables_data_df = fd.fetch_data_for_time_interval(st.session_state.spot_id_selected, variable, date_interval, api_key)
+            spot_variables_data_df = f.fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)    
             
             
             # Coleta o nome da variável em questão
