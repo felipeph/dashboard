@@ -14,7 +14,24 @@ def convert_date_time(df):
     df['timestamp'] = df['timestamp'].dt.tz_convert(brt_timezone)
     df['timestamp'] = df['timestamp'].dt.tz_localize(None)
     return df
-    
+
+def timestamp_from_date_interval(date_interval):
+    start_date_with_minutes = datetime.combine(date_interval[0], datetime.min.time())
+    start_timestamp = int(start_date_with_minutes.timestamp())
+    end_date_with_minutes = datetime.combine(date_interval[1], datetime.min.time())
+    end_timestamp = int(end_date_with_minutes.timestamp())
+    return start_timestamp, end_timestamp
+
+def today():
+    timezone_br = pytz.timezone('America/Sao_Paulo')
+    now_datetime = datetime.now(timezone_br)
+    return now_datetime
+
+def n_days_ago(n_days):
+    timezone_br = pytz.timezone('America/Sao_Paulo')
+    now_datetime = datetime.now(timezone_br)
+    n_days_datetime = now_datetime - timedelta(days=n_days)
+    return n_days_datetime
 
 def clear_empty_columns(dataframe):
     df = pd.DataFrame(dataframe)
@@ -103,6 +120,54 @@ def fetch_data_from_variable_from_spot(spot_id, global_data_id):
     spot_variable_data_df = convert_date_time(spot_variable_data_df)
     spot_variable_data_df_clean = clear_empty_columns(spot_variable_data_df)
     return spot_variable_data_df_clean
+
+
+
+@st.cache_data
+def fetch_data_between_dates(spot_id, global_data_id, start_timestamp, end_timestamp, api_key):
+    """
+    Fetch the data about a variable in that given spot, clean it and return it into a DataFrame with the configurations to create the plot.
+    
+    Args:
+        spot_id (str): The ID of the selected spot
+        global_data_id (str): The ID of the variable of that spot to inspect.
+        date_interval (int): Number of days from now to inspect.
+    
+    Returns:
+        df (Pandas DataFrame): Cleaned DataFrame with the data of that time interval.
+        
+    Details:
+        - Create the URL to request the API
+        - Get the timezone of Brazil
+        - Get the timestamp from now in Brazil timezone
+        - Use timedelta to get the timestamp of the start date
+        - Do the request with the start and end date as parameters
+        - Get the JSON from the response
+        - Turn the JSON into pandas DataFrame
+        - Convert the datetime columns to datetime type
+        - Clear empty columns
+        - Return the DataFrame
+    """
+    url = f"https://api.iotebe.com/v2/spot/{spot_id}/ng1vt/global_data/{global_data_id}/data"
+    
+    
+    querystring = {"start_date": str(start_timestamp), "end_date": str(end_timestamp)}
+    
+    headers = {
+    "x-api-key": api_key,
+    "Accept": "application/json"
+    }
+    response = requests.get(url, headers=headers, params=querystring)
+    spot_variable_data_info = response.json()
+    spot_variable_data_df = pd.DataFrame(spot_variable_data_info)
+    spot_variable_data_df = convert_date_time(spot_variable_data_df)
+    spot_variable_data_df_clean = clear_empty_columns(spot_variable_data_df)
+    return spot_variable_data_df_clean
+
+
+
+
+
 
 @st.cache_data(ttl=600)
 def fetch_data_for_time_interval(spot_id, global_data_id, date_interval, api_key):

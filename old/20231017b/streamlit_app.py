@@ -16,8 +16,6 @@ import pandas as pd
 # Time to reload the app every 10 min
 import time
 
-from datetime import datetime
-
 # My functions for style
 import func_style as fs
 
@@ -35,11 +33,6 @@ my_logo = "logo_acoplast.png"
 client_logo = "logo_cliente.png"
 
 spot_image = "pontos_monitoramento.png"
-
-days_ago_7 = fd.n_days_ago(7)
-today = fd.today()
-fetch_data_from_date_interval = False
-
 
 #........................ PAGE CONFIGURATION ............................................
 # Adjust page configuration and hiding elements
@@ -178,78 +171,29 @@ with body_center_col:
     
     with tab_plots:
         
-
         
         st.markdown(f"#### {st.session_state.spot_selected_name}")    
-
-        col_radio_select, col_date_interval = st.columns(2)
         
-        # date_interval_options ={
-        #     1 : "24 horas",
-        #     7 : "7 dias",
-        #     15 : "15 dias",
-        # }
+        date_interval_options ={
+            1 : "24 horas",
+            7 : "7 dias",
+            15 : "15 dias",
+        }
         
         
-        
-        # date_interval = st.radio(label="Quantidade de dias analisados",
-        #                          options=(1, 7, 15),
-        #                          format_func= lambda x: date_interval_options.get(x),
-        #                          horizontal=True,
-        #                          label_visibility="collapsed",
-        #                          )
-        
-        with col_radio_select: 
-        
-            time_interval_option = st.radio(label="Intervalo de tempo",
-                                            options=("24 horas", "Personalizado"),
-                                            horizontal=True,
-                                            label_visibility="collapsed")
-
-        if time_interval_option == "Personalizado":
-            
-            with col_date_interval:            
-                date_interval = st.date_input(label="Intervalo entre datas", value=(days_ago_7,today))
-                if len(date_interval) == 2:
-                    start_timestamp, end_timestamp = fd.timestamp_from_date_interval(date_interval)
-                    fetch_data_from_date_interval = True
-            # with st.form(key="select_date_interval"):
-                # col_start_date, col_end_date, col_submit_dates = st.columns(3)                
-                # with col_start_date:
-                #     start_date = st.date_input(label="Data de Início da Análise", value=days_ago_7)
-                
-                # with col_end_date:
-                #     end_date = st.date_input(label="Data de Término na Análise", value=today)
-                
-                # with col_submit_dates:
-                #     st.markdown("#### ")
-                #     date_interval_selected = st.form_submit_button("Enviar", use_container_width=True)    
-                
-                # date_interval = st.date_input(label="Teste de duas datas", value=(days_ago_7,today))
-                # date_interval_selected = st.form_submit_button("Enviar", use_container_width=True)
-            
-            # if date_interval_selected:
-            # st.write(date_interval[0])
-            # st.write(date_interval[1])
-                # st.success("Solicitação realizada com sucesso. Aguarde")
-            
+        date_interval = st.radio(label="Quantidade de dias analisados",
+                                 options=(1, 7, 15),
+                                 format_func= lambda x: date_interval_options.get(x),
+                                 horizontal=True,
+                                 label_visibility="collapsed",
+                                 )
         
         for variable in spot_variables_df_custom["global_data_id"]:
 
             
             # Coleta dos dados de uma dada variável
+            spot_variables_data_df = fd.fetch_data_for_time_interval(st.session_state.spot_id_selected, variable, date_interval, api_key)
             
-            if fetch_data_from_date_interval:
-                #spot_variables_data_df = fd.fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)
-                spot_variables_data_df = fd.fetch_data_between_dates(spot_id=st.session_state.spot_id_selected,
-                                                                     global_data_id=variable,
-                                                                     start_timestamp=start_timestamp,
-                                                                     end_timestamp=end_timestamp,
-                                                                     api_key=api_key)
-                
-                #spot_variables_data_df = fd.fetch_data_for_time_interval(st.session_state.spot_id_selected, variable, date_interval, api_key)
-            else:
-                spot_variables_data_df = fd.fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)
             
             # Coleta o nome da variável em questão
             variable_name = spot_variables_df_custom[spot_variables_df_custom["global_data_id"] == variable]["global_data_name"].tolist()[0]
