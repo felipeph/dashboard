@@ -258,3 +258,36 @@ def csv_for_spot_variables(spot_variables_df_api, csv_file_name):
     
     return spot_variables_df_custom
     
+def csv_for_spot_list(spots_list_api, csv_file_name):
+    """
+    Check if the ir or not a CSV file with the data of an spot and create one if not.
+    It is important for the user customized alarm limits.
+    
+    Args:
+        spot_variables_df_api (Pandas DataFrame): The DataFrame without cleaning.
+        csv_file_name (str): Name of the CSV file to check.
+    
+    Return:
+        df (Pandas DataFrame): DataFrame cleaned and saved into the CSV.
+    
+    Details:
+        - Get the dirty DataFrame
+        - Clean the DataFrame taking out the RMS variables
+        - Check if there is a CSV for that spot.
+        - Read the CSV if it exists and create one if not.
+        - Return the clean DataFrame with users alarm settings.
+    
+    """
+    spots_list_api = pd.DataFrame(spots_list_api)
+
+    csv_file_path = Path(csv_file_name)
+
+    if csv_file_path.is_file():
+        pass
+    else:
+        spots_list_api.to_csv(csv_file_name, index=False, encoding="utf-8")
+
+    spot_variables_df_custom = pd.read_csv(csv_file_name)
+    
+    return spot_variables_df_custom
+    

@@ -36,6 +36,8 @@ client_logo = "logo_cliente.png"
 
 spot_image = "pontos_monitoramento.png"
 
+spots_list_csv = "spots_list.csv"
+
 days_ago_7 = fd.n_days_ago(7)
 today = fd.today()
 fetch_data_from_date_interval = False
@@ -58,15 +60,14 @@ fs.remove_streamlit_elements()
 
 
 
-
-
-
 #......................... FIRST API CALL ..............................................
 # Coleta da chave API cadastrada no secrets do streamlit
 api_key = st.secrets["chave_api"]
 
 # Criação do Dataframe com os dados coletados da lista de spots
 spots_list_df = f.fetch_spots_list(api_key)
+
+spots_list_df = fd.csv_for_spot_list(spots_list_df, spots_list_csv)
 #---------------------------------------------------------------------------------------
 
 
@@ -377,6 +378,17 @@ with body_center_col:
                 if params_changed:
                     fp.save_params(p, params_json_filepath)
                     st.success("Parâmetros alterados com sucesso")
+                    st.experimental_rerun()
+                    
+            st.markdown(f"###### Nomes dos Spots")
+            with st.form(key="spots_names"):
+                spots_list_df["spot_name"][0] = st.text_input("Nome do spot 1", value=spots_list_df["spot_name"][0])
+                spots_list_df["spot_name"][1] = st.text_input("Nome do spot 2", value=spots_list_df["spot_name"][1])
+                spots_list_df["spot_name"][2] = st.text_input("Nome do spot 3", value=spots_list_df["spot_name"][2])
+                spots_list_df["spot_name"][3] = st.text_input("Nome do spot 4", value=spots_list_df["spot_name"][3])
+                spot_names_changed = st.form_submit_button("Salvar", use_container_width=True)
+                if spot_names_changed:
+                    spots_list_df.to_csv(spots_list_csv, index=False)
                     st.experimental_rerun()
         
         with tab_config_col_3:
