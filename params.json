@@ -1,0 +1,23 @@
+{
+    "page_config": {
+        "page_title": "ACOPLAST Brasil"
+    },
+    "left_column": {
+        "title": "ACODATA\u00ae",
+        "code": "645205",
+        "platform": "PLATAFORMA DE MONITORAMENTO - 07",
+        "title_radio": "PONTOS DE MONITORAMENTO"
+    },
+    "center_column": {
+        "tabs": {
+            "tab_image": "PONTOS DE MONITORAMENTO",
+            "tab_plots": "GR\u00c1FICOS",
+            "tab_config": "CONFIGURA\u00c7\u00d5ES"
+        },
+        "tab_config": {
+            "title": "N\u00edveis de Alerta",
+            "alert": "Alarme de Alerta",
+            "critical": "Alarme Cr\u00edtico"
+        }
+    }
+}

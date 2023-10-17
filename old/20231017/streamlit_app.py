@@ -22,22 +22,11 @@ import func_style as fs
 # My functions for data
 import func_data as fd
 
-import func_params as fp
-
-params_json_filepath = "params.json"
-
-p = fp.load_params(params_json_filepath)
-
-my_logo = "logo_acoplast.png"
-
-client_logo = "logo_cliente.png"
-
-spot_image = "pontos_monitoramento.png"
 
 #........................ PAGE CONFIGURATION ............................................
 # Adjust page configuration and hiding elements
 
-st.set_page_config(page_title= p["page_config"]["page_title"],
+st.set_page_config(page_title="ACOPLAST Brasil",
                    page_icon="favicon-acoplast.ico",
                    layout="wide",
                    )
@@ -76,9 +65,9 @@ header = st.container()
 
 with header:
     header_left_col, header_center_col, header_right_col = header.columns([3,5,2], gap="small")
-    header_left_col.image(my_logo, use_column_width=True)
+    header_left_col.image("logo_acoplast.png", use_column_width=True)
     #header_center_col.markdown("""<div align="left"><h1 style="color:#2A4B80; display: inline">ACODATA®</h1><h6 style="color:#2A4B80; display: inline">CÓDIGO: 645205</h6></div>""", unsafe_allow_html=True)
-    #header_right_col.image(client_logo, use_column_width="auto")
+    #header_right_col.image("logo_usiminas.png", use_column_width="auto")
     header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
     ### Custom CSS for the sticky header
     fs.sticky_header()
@@ -112,14 +101,14 @@ with body_left_col:
     
     #st.subheader("CÓDIGO: 645205")
     
-    st.markdown(f'<div align="left"><h1 style="color:#2A4B80; display: inline">{p["left_column"]["title"]}</h1><h5 style="color:#2A4B80; ">CÓDIGO: {p["left_column"]["code"]}</h5></div>', unsafe_allow_html=True)
+    st.markdown("""<div align="left"><h1 style="color:#2A4B80; display: inline">ACODATA®</h1><h5 style="color:#2A4B80; ">CÓDIGO: 645205</h5></div>""", unsafe_allow_html=True)
     
-    st.markdown(f'###### {p["left_column"]["platform"]}')
+    st.markdown("###### PLATAFORMA DE MONITORAMENTO - 07")
     
     #st.markdown("###### MOINHO DE BOLAS - 5330 MO. 01")
     
     # Lista de itens para escolha
-    st.session_state.spot_selected_name = st.radio(label=f'**{p["left_column"]["title_radio"]}**',
+    st.session_state.spot_selected_name = st.radio(label="**PONTOS DE MONITORAMENTO**",
                                                    options=spots_list_df["spot_name"])
     
     # Filtra o data frame para apenas a linha que contém o mesmo nome escolhido pelo usuário
@@ -156,23 +145,43 @@ spot_variables_df_custom = fd.csv_for_spot_variables(spot_variables_df_api, csv_
 # ................ CENTRAL COLUMN: PLOTS ...................................................................
 with body_center_col:
     
-    tab_image, tab_plots, tab_config = st.tabs([p["center_column"]["tabs"]["tab_image"], 
-                                                p["center_column"]["tabs"]["tab_plots"], 
-                                                p["center_column"]["tabs"]["tab_config"]])
+    tab_image, tab_plots, tab_config = st.tabs(["PONTOS DE MONITORAMENTO", "GRÁFICOS", "CONFIGURAÇÕES"])
     
     with tab_config:
         tab_config_col_1, tab_config_col_2, tab_config_col_3 = st.columns(3)
         
         with tab_config_col_1:
-            st.markdown(f'###### {p["center_column"]["tab_config"]["title"]}')
+            st.markdown("###### Níveis de Alerta")
             
     with tab_image:
-        st.image(spot_image, use_column_width=True)
+        st.image("pontos_monitoramento.png", use_column_width=True)
     
     with tab_plots:
         
+        # tab_plot_24hrs, tab_plot_7days, tab_plot_15days = st.tabs(["24 horas", "7 dias", "15 dias"])
+
+        # with tab_plot_24hrs:
+        #     date_interval = 1
+        #     st.write(date_interval)
+        
+        # with tab_plot_7days:
+        #     date_interval = 7
+        #     st.write(date_interval)
+        
+        # with tab_plot_15days:
+        #     date_interval = 15
+        #     st.write(date_interval)
+    
+        # st.number_input(label=)
         
         st.markdown(f"#### {st.session_state.spot_selected_name}")    
+        # Loop para criação dos gráficos
+        
+        # date_interval = st.number_input(label="Quantidade de dias analisados",
+        #                                 min_value=1,
+        #                                 max_value=15,
+        #                                 value=1,
+        #                                 step=1,)
         
         date_interval_options ={
             1 : "24 horas",
@@ -192,6 +201,7 @@ with body_center_col:
 
             
             # Coleta dos dados de uma dada variável
+            #spot_variables_data_df = fd.fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)    
             spot_variables_data_df = fd.fetch_data_for_time_interval(st.session_state.spot_id_selected, variable, date_interval, api_key)
             
             
@@ -283,11 +293,11 @@ with body_center_col:
                 with tab_config_col_1:
                     with st.form(key=variable_name):
                         st.markdown(f"###### {variable_name}")
-                        alarm_alert_custom = st.number_input(label=p["center_column"]["tab_config"]["alert"], 
+                        alarm_alert_custom = st.number_input(label="Alarme de Alerta", 
                                                             value=alarm_alert,
                                                             key=variable_name+"alarm_alert")
                         
-                        alarm_critical_custom = st.number_input(label=p["center_column"]["tab_config"]["critical"], 
+                        alarm_critical_custom = st.number_input(label="Alarme Crítico", 
                                                                 value=alarm_critical,
                                                                 key=variable_name+"alarm_critical")
                         
@@ -296,68 +306,121 @@ with body_center_col:
                             spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_alert"] = alarm_alert_custom
                             spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_critical"] = alarm_critical_custom
                             spot_variables_df_custom.to_csv(csv_file_name, index=False)
-                            st.experimental_rerun()
-                
+                            st.experimental_rerun()   
+
             
-        with tab_config_col_2:
-            st.markdown(f"###### Textos")
-            with st.form(key="params_config"):
-                
-                p["page_config"]["page_title"] = st.text_input(label="Título da Página", value=p["page_config"]["page_title"])
-                
-                p["left_column"]["title"] = st.text_input(label="Barra Lateral: Título", value=p["left_column"]["title"])
-                p["left_column"]["code"] = st.text_input(label="Barra Lateral: Código", value=p["left_column"]["code"])
-                p["left_column"]["platform"] = st.text_input(label="Barra Lateral: Plataforma", value=p["left_column"]["platform"])
-                p["left_column"]["title_radio"] = st.text_input(label="Barra Lateral: Título do Seletor", value=p["left_column"]["title_radio"])
-                
-                p["center_column"]["tabs"]["tab_image"] = st.text_input(label="Título da aba de imagens", value=p["center_column"]["tabs"]["tab_image"])
-                p["center_column"]["tabs"]["tab_plots"] = st.text_input(label="Título da aba de gráficos", value=p["center_column"]["tabs"]["tab_plots"])
-                p["center_column"]["tabs"]["tab_config"] = st.text_input(label="Título da aba de configurações", value=p["center_column"]["tabs"]["tab_config"])
-                
-                p["center_column"]["tab_config"]["title"] = st.text_input(label="Título da seção de alertas", value=p["center_column"]["tab_config"]["title"])
-                p["center_column"]["tab_config"]["alert"] = st.text_input(label="Alarme de Alerta", value=p["center_column"]["tab_config"]["alert"])
-                p["center_column"]["tab_config"]["critical"] = st.text_input(label="Alarme Crítico", value=p["center_column"]["tab_config"]["critical"])
-                params_changed = st.form_submit_button("Salvar", use_container_width=True)
-                if params_changed:
-                    fp.save_params(p, params_json_filepath)
-                    st.success("Parâmetros alterados com sucesso")
-                    st.rerun()
+            # with st.expander("Configurações", expanded=False):
+            #     with st.form(key=variable_name):
+            #         column_alarm_custom, column_critical_custom, column_button = st.columns([0.2, 0.2, 0.2], gap="small")
+                    
+            #         with column_alarm_custom:              
+            #             alarm_alert_custom = st.number_input(label="Alarme de Alerta", 
+            #                                                 value=alarm_alert,
+            #                                                 key=variable_name+"alarm_alert")
+                    
+            #         with column_critical_custom:
+            #             alarm_critical_custom = st.number_input(label="Alarme Crítico", 
+            #                                                     value=alarm_critical,
+            #                                                     key=variable_name+"alarm_critical")
+                        
+            #         with column_button:
+            #             st.write("")
+            #             st.write("")
+            #             alarm_settings_changed = st.form_submit_button("Salvar")
+            #             if alarm_settings_changed:
+            #                 spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_alert"] = alarm_alert_custom
+            #                 spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_critical"] = alarm_critical_custom
+            #                 spot_variables_df_custom.to_csv(csv_file_name, index=False)
+            #                 st.experimental_rerun()   
+            
+    # with tab_config:
         
-        with tab_config_col_3:
-            st.markdown(f"###### Imagens")
-            with st.form(key="change_my_logo"):
-                st.markdown(f"###### Logo da Empresa")
-                st.image(my_logo, use_column_width=True)
-                my_new_logo = st.file_uploader(label="Envie uma nova imagem", type=['png', 'jpeg', 'jpg'])
-                changed_my_logo = st.form_submit_button("Salvar", use_container_width=True)
-                if changed_my_logo:
-                    with open(my_logo, "wb") as f:
-                        f.write(my_new_logo.getvalue())
-                    st.success("Imagens alteradas com sucesso")
-                    st.rerun()
+    #     column_config_speed, column_config_accel, column_config_temp = st.columns(3, gap="small")
+        
+    #     with column_config_speed:
+    #         with st.form(key="VELOCIDADE"):
+                
+    #             st.markdown("###### VELOCIDADE - mm/s")
+    #             speed_alarm_alert_custom = st.number_input(label="Alarme de Alerta", 
+    #                                                        value=alarm_alert,
+    #                                                        key="VELOCIDADE_"+"alarm_alert")
+    #             speed_alarm_settings_changed = st.form_submit_button("Salvar", use_container_width=True)
+                
+        
+    #     with column_config_accel:
+    #         with st.form(key="ACELERAÇÃO"):
+    #             st.markdown("###### ACELERAÇÃO - g")
+    #             accel_alarm_settings_changed = st.form_submit_button("Salvar", use_container_width=True)
             
-            # with st.form(key="change_client_logo"):
-            #     st.markdown(f"###### Logo do Cliente")
-            #     st.image(client_logo, use_column_width=True)
-            #     client_new_logo = st.file_uploader(label="Envie uma nova imagem", type=['png', 'jpeg', 'jpg'])
-            #     changed_client_logo = st.form_submit_button("Salvar", use_container_width=True)
-            #     if changed_client_logo:
-            #         with open(client_logo, "wb") as f:
-            #             f.write(client_new_logo.getvalue())
-            #         st.success("Imagens alteradas com sucesso")
-            #         st.rerun()
+    #     with column_config_temp:
+    #         with st.form(key="TEMPERATURA"):
+    #             st.markdown("###### TEMPERATURA - °C")
+    #             temp_alarm_settings_changed = st.form_submit_button("Salvar", use_container_width=True)
+        
+        
+    #     with st.form(key=variable_name):
+    #         column_alarm_custom, column_critical_custom, column_button = st.columns([0.2, 0.2, 0.2], gap="small")
 
-            with st.form(key="change_monitoring_spot"):
-                st.markdown(f"###### Ponto de Monitoramento")
-                st.image(spot_image, use_column_width=True)
-                new_spot_image = st.file_uploader(label="Envie uma nova imagem", type=['png', 'jpeg', 'jpg'])
-                changed_spot_image = st.form_submit_button("Salvar", use_container_width=True)
-                if changed_spot_image:
-                    with open(spot_image, "wb") as f:
-                        f.write(new_spot_image.getvalue())
-                    st.success("Imagens alteradas com sucesso")
-                    st.rerun()
+    #         with column_alarm_custom:              
+    #             alarm_alert_custom = st.number_input(label="Alarme de Alerta", 
+    #                                                 value=alarm_alert,
+    #                                                 key=variable_name+"alarm_alert")
 
+    #         with column_critical_custom:
+    #             alarm_critical_custom = st.number_input(label="Alarme Crítico", 
+    #                                                     value=alarm_critical,
+    #                                                     key=variable_name+"alarm_critical")
+
+    #         with column_button:
+    #             st.write("")
+    #             st.write("")
+    #             alarm_settings_changed = st.form_submit_button("Salvar", use_container_width=True)
+    #             if alarm_settings_changed:
+    #                 spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_alert"] = alarm_alert_custom
+    #                 spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_critical"] = alarm_critical_custom
+    #                 spot_variables_df_custom.to_csv(csv_file_name, index=False)
+    #                 st.experimental_rerun() 
+        
+    # # --------------------------------------------------------------------------------------------------------------------------
+
+
+
+# with body_right_col:
+        
+#     #st.subheader("Imagem do sensor")
+#     st.markdown("**Pontos de Monitoramento**")
+#     st.image("pontos_monitoramento.png")
+#     #st.markdown("**Ponto Monitorado**")
+#     #st.image(f"images/{st.session_state.spot_id_selected}.png")
+#     #st.subheader("Detalhes do sensor")
+#     spots_filter = spots_list_df['spot_id'] == st.session_state.spot_id_selected
+#     spots_list_filtered = spots_list_df.loc[spots_filter]
+#     sensor_id = spots_list_filtered['sensor_id'].values[0]
+#     alarm_status = spots_list_filtered['alarm_status'].values[0]
+#     battery_level = int(spots_list_filtered['battery_level'].values[0])
+#     connection_status = spots_list_filtered['connection_status'].values[0]
+    
+    
+#     #st.info(f"Sensor: **ACOSVT-{int(st.session_state.spot_id_selected)-218}**")
+    
+#     # st.info(f'''
+#     #         Último dado recebido em  
+#     #         **{last_timestamp}**''')
+    
+#     if connection_status == "connected":
+#         st.success("**Sensor Conectado**")
+#     if connection_status == "gateway_not_connected":
+#         st.error("**Gateway Desconectado**")
+    
+#     # if alarm_status == "GREEN":
+#     #     st.success("**Nível Operacional**")
+#     # if alarm_status == "YELLOW":
+#     #     st.warning("**Nível de Alerta**")
+#     # if alarm_status == "RED":
+#     #     st.error("**Nível Crítico**")
+        
+#     st.progress(value=battery_level, text=f"Nível de Bateria {battery_level}%")
+    
 
 with body_left_col:    
     st.caption(f"Atualizado em {last_timestamp}")               
@@ -368,11 +431,6 @@ with body_left_col:
 # while True:
 #     time.sleep(600)
 #     st.experimental_rerun()
-
-
-                # st.image("logo_usiminas.png", use_column_width=True)
-                # st.image("pontos_monitoramento.png", use_column_width=True)
-
             
         
    
