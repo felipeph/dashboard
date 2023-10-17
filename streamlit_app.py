@@ -64,6 +64,8 @@ fs.remove_streamlit_elements()
 # Coleta da chave API cadastrada no secrets do streamlit
 api_key = st.secrets["chave_api"]
 
+config_password = st.secrets["senha_config"]
+
 # Criação do Dataframe com os dados coletados da lista de spots
 spots_list_df = f.fetch_spots_list(api_key)
 
@@ -169,10 +171,15 @@ with body_center_col:
                                                 p["center_column"]["tabs"]["tab_config"]])
     
     with tab_config:
+        st.session_state.user_password = st.text_input(label="Senha de acesso às configurações", type="password")
+        
         tab_config_col_1, tab_config_col_2, tab_config_col_3 = st.columns(3)
         
-        with tab_config_col_1:
-            st.markdown(f'###### {p["center_column"]["tab_config"]["title"]}')
+        
+        if st.session_state.user_password == st.secrets["senha_config"]:              
+            
+            with tab_config_col_1:
+                st.markdown(f'###### {p["center_column"]["tab_config"]["title"]}')
             
     with tab_image:
         st.image(spot_image, use_column_width=True)
@@ -337,94 +344,102 @@ with body_center_col:
             
             with tab_config:
                 
-                with tab_config_col_1:
-                    with st.form(key=variable_name):
-                        st.markdown(f"###### {variable_name}")
-                        alarm_alert_custom = st.number_input(label=p["center_column"]["tab_config"]["alert"], 
-                                                            value=alarm_alert,
-                                                            key=variable_name+"alarm_alert")
-                        
-                        alarm_critical_custom = st.number_input(label=p["center_column"]["tab_config"]["critical"], 
-                                                                value=alarm_critical,
-                                                                key=variable_name+"alarm_critical")
-                        
-                        alarm_settings_changed = st.form_submit_button("Salvar", use_container_width=True)
-                        if alarm_settings_changed:
-                            spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_alert"] = alarm_alert_custom
-                            spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_critical"] = alarm_critical_custom
-                            spot_variables_df_custom.to_csv(csv_file_name, index=False)
-                            st.experimental_rerun()
+                if st.session_state.user_password == st.secrets["senha_config"]:
+                
+                    with tab_config_col_1:
+                        with st.form(key=variable_name):
+                            st.markdown(f"###### {variable_name}")
+                            alarm_alert_custom = st.number_input(label=p["center_column"]["tab_config"]["alert"], 
+                                                                value=alarm_alert,
+                                                                key=variable_name+"alarm_alert")
+                            
+                            alarm_critical_custom = st.number_input(label=p["center_column"]["tab_config"]["critical"], 
+                                                                    value=alarm_critical,
+                                                                    key=variable_name+"alarm_critical")
+                            
+                            alarm_settings_changed = st.form_submit_button("Salvar", use_container_width=True)
+                            if alarm_settings_changed:
+                                spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_alert"] = alarm_alert_custom
+                                spot_variables_df_custom.loc[spot_variables_df_custom["global_data_id"] == variable, "alarm_critical"] = alarm_critical_custom
+                                spot_variables_df_custom.to_csv(csv_file_name, index=False)
+                                st.experimental_rerun()
                 
             
         with tab_config_col_2:
-            st.markdown(f"###### Textos")
-            with st.form(key="params_config"):
-                
-                p["page_config"]["page_title"] = st.text_input(label="Título da Página", value=p["page_config"]["page_title"])
-                
-                p["left_column"]["title"] = st.text_input(label="Barra Lateral: Título", value=p["left_column"]["title"])
-                p["left_column"]["code"] = st.text_input(label="Barra Lateral: Código", value=p["left_column"]["code"])
-                p["left_column"]["platform"] = st.text_input(label="Barra Lateral: Plataforma", value=p["left_column"]["platform"])
-                p["left_column"]["title_radio"] = st.text_input(label="Barra Lateral: Título do Seletor", value=p["left_column"]["title_radio"])
-                
-                p["center_column"]["tabs"]["tab_image"] = st.text_input(label="Título da aba de imagens", value=p["center_column"]["tabs"]["tab_image"])
-                p["center_column"]["tabs"]["tab_plots"] = st.text_input(label="Título da aba de gráficos", value=p["center_column"]["tabs"]["tab_plots"])
-                p["center_column"]["tabs"]["tab_config"] = st.text_input(label="Título da aba de configurações", value=p["center_column"]["tabs"]["tab_config"])
-                
-                p["center_column"]["tab_config"]["title"] = st.text_input(label="Título da seção de alertas", value=p["center_column"]["tab_config"]["title"])
-                p["center_column"]["tab_config"]["alert"] = st.text_input(label="Alarme de Alerta", value=p["center_column"]["tab_config"]["alert"])
-                p["center_column"]["tab_config"]["critical"] = st.text_input(label="Alarme Crítico", value=p["center_column"]["tab_config"]["critical"])
-                params_changed = st.form_submit_button("Salvar", use_container_width=True)
-                if params_changed:
-                    fp.save_params(p, params_json_filepath)
-                    st.success("Parâmetros alterados com sucesso")
-                    st.experimental_rerun()
+            
+            if st.session_state.user_password == st.secrets["senha_config"]:
+            
+                st.markdown(f"###### Textos")
+                with st.form(key="params_config"):
                     
-            st.markdown(f"###### Nomes dos Spots")
-            with st.form(key="spots_names"):
-                spots_list_df["spot_name"][0] = st.text_input("Nome do spot 1", value=spots_list_df["spot_name"][0])
-                spots_list_df["spot_name"][1] = st.text_input("Nome do spot 2", value=spots_list_df["spot_name"][1])
-                spots_list_df["spot_name"][2] = st.text_input("Nome do spot 3", value=spots_list_df["spot_name"][2])
-                spots_list_df["spot_name"][3] = st.text_input("Nome do spot 4", value=spots_list_df["spot_name"][3])
-                spot_names_changed = st.form_submit_button("Salvar", use_container_width=True)
-                if spot_names_changed:
-                    spots_list_df.to_csv(spots_list_csv, index=False)
-                    st.experimental_rerun()
+                    p["page_config"]["page_title"] = st.text_input(label="Título da Página", value=p["page_config"]["page_title"])
+                    
+                    p["left_column"]["title"] = st.text_input(label="Barra Lateral: Título", value=p["left_column"]["title"])
+                    p["left_column"]["code"] = st.text_input(label="Barra Lateral: Código", value=p["left_column"]["code"])
+                    p["left_column"]["platform"] = st.text_input(label="Barra Lateral: Plataforma", value=p["left_column"]["platform"])
+                    p["left_column"]["title_radio"] = st.text_input(label="Barra Lateral: Título do Seletor", value=p["left_column"]["title_radio"])
+                    
+                    p["center_column"]["tabs"]["tab_image"] = st.text_input(label="Título da aba de imagens", value=p["center_column"]["tabs"]["tab_image"])
+                    p["center_column"]["tabs"]["tab_plots"] = st.text_input(label="Título da aba de gráficos", value=p["center_column"]["tabs"]["tab_plots"])
+                    p["center_column"]["tabs"]["tab_config"] = st.text_input(label="Título da aba de configurações", value=p["center_column"]["tabs"]["tab_config"])
+                    
+                    p["center_column"]["tab_config"]["title"] = st.text_input(label="Título da seção de alertas", value=p["center_column"]["tab_config"]["title"])
+                    p["center_column"]["tab_config"]["alert"] = st.text_input(label="Alarme de Alerta", value=p["center_column"]["tab_config"]["alert"])
+                    p["center_column"]["tab_config"]["critical"] = st.text_input(label="Alarme Crítico", value=p["center_column"]["tab_config"]["critical"])
+                    params_changed = st.form_submit_button("Salvar", use_container_width=True)
+                    if params_changed:
+                        fp.save_params(p, params_json_filepath)
+                        st.success("Parâmetros alterados com sucesso")
+                        st.experimental_rerun()
+                        
+                st.markdown(f"###### Nomes dos Spots")
+                with st.form(key="spots_names"):
+                    spots_list_df["spot_name"][0] = st.text_input("Nome do spot 1", value=spots_list_df["spot_name"][0])
+                    spots_list_df["spot_name"][1] = st.text_input("Nome do spot 2", value=spots_list_df["spot_name"][1])
+                    spots_list_df["spot_name"][2] = st.text_input("Nome do spot 3", value=spots_list_df["spot_name"][2])
+                    spots_list_df["spot_name"][3] = st.text_input("Nome do spot 4", value=spots_list_df["spot_name"][3])
+                    spot_names_changed = st.form_submit_button("Salvar", use_container_width=True)
+                    if spot_names_changed:
+                        spots_list_df.to_csv(spots_list_csv, index=False)
+                        st.experimental_rerun()
         
         with tab_config_col_3:
-            st.markdown(f"###### Imagens")
-            with st.form(key="change_my_logo"):
-                st.markdown(f"###### Logo da Empresa")
-                st.image(my_logo, use_column_width=True)
-                my_new_logo = st.file_uploader(label="Envie uma nova imagem", type=['png', 'jpeg', 'jpg'])
-                changed_my_logo = st.form_submit_button("Salvar", use_container_width=True)
-                if changed_my_logo:
-                    with open(my_logo, "wb") as f:
-                        f.write(my_new_logo.getvalue())
-                    st.success("Imagens alteradas com sucesso")
-                    st.experimental_rerun()
             
-            # with st.form(key="change_client_logo"):
-            #     st.markdown(f"###### Logo do Cliente")
-            #     st.image(client_logo, use_column_width=True)
-            #     client_new_logo = st.file_uploader(label="Envie uma nova imagem", type=['png', 'jpeg', 'jpg'])
-            #     changed_client_logo = st.form_submit_button("Salvar", use_container_width=True)
-            #     if changed_client_logo:
-            #         with open(client_logo, "wb") as f:
-            #             f.write(client_new_logo.getvalue())
-            #         st.success("Imagens alteradas com sucesso")
-            #         st.rerun()
+            if st.session_state.user_password == st.secrets["senha_config"]:
+                
+                st.markdown(f"###### Imagens")
+                with st.form(key="change_my_logo"):
+                    st.markdown(f"###### Logo da Empresa")
+                    st.image(my_logo, use_column_width=True)
+                    my_new_logo = st.file_uploader(label="Envie uma nova imagem", type=['png', 'jpeg', 'jpg'])
+                    changed_my_logo = st.form_submit_button("Salvar", use_container_width=True)
+                    if changed_my_logo:
+                        with open(my_logo, "wb") as f:
+                            f.write(my_new_logo.getvalue())
+                        st.success("Imagens alteradas com sucesso")
+                        st.experimental_rerun()
+                
+                # with st.form(key="change_client_logo"):
+                #     st.markdown(f"###### Logo do Cliente")
+                #     st.image(client_logo, use_column_width=True)
+                #     client_new_logo = st.file_uploader(label="Envie uma nova imagem", type=['png', 'jpeg', 'jpg'])
+                #     changed_client_logo = st.form_submit_button("Salvar", use_container_width=True)
+                #     if changed_client_logo:
+                #         with open(client_logo, "wb") as f:
+                #             f.write(client_new_logo.getvalue())
+                #         st.success("Imagens alteradas com sucesso")
+                #         st.rerun()
 
-            with st.form(key="change_monitoring_spot"):
-                st.markdown(f"###### Ponto de Monitoramento")
-                st.image(spot_image, use_column_width=True)
-                new_spot_image = st.file_uploader(label="Envie uma nova imagem", type=['png', 'jpeg', 'jpg'])
-                changed_spot_image = st.form_submit_button("Salvar", use_container_width=True)
-                if changed_spot_image:
-                    with open(spot_image, "wb") as f:
-                        f.write(new_spot_image.getvalue())
-                    st.success("Imagens alteradas com sucesso")
-                    st.experimental_rerun()
+                with st.form(key="change_monitoring_spot"):
+                    st.markdown(f"###### Ponto de Monitoramento")
+                    st.image(spot_image, use_column_width=True)
+                    new_spot_image = st.file_uploader(label="Envie uma nova imagem", type=['png', 'jpeg', 'jpg'])
+                    changed_spot_image = st.form_submit_button("Salvar", use_container_width=True)
+                    if changed_spot_image:
+                        with open(spot_image, "wb") as f:
+                            f.write(new_spot_image.getvalue())
+                        st.success("Imagens alteradas com sucesso")
+                        st.experimental_rerun()
 
 
 with body_left_col:    
@@ -440,22 +455,3 @@ with body_left_col:
 
                 # st.image("logo_usiminas.png", use_column_width=True)
                 # st.image("pontos_monitoramento.png", use_column_width=True)
-
-            
-        
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
