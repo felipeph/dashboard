@@ -377,7 +377,7 @@ with body_center_col:
                 if params_changed:
                     fp.save_params(p, params_json_filepath)
                     st.success("Parâmetros alterados com sucesso")
-                    st.rerun()
+                    st.experimental_rerun()
         
         with tab_config_col_3:
             st.markdown(f"###### Imagens")
@@ -390,7 +390,7 @@ with body_center_col:
                     with open(my_logo, "wb") as f:
                         f.write(my_new_logo.getvalue())
                     st.success("Imagens alteradas com sucesso")
-                    st.rerun()
+                    st.experimental_rerun()
             
             # with st.form(key="change_client_logo"):
             #     st.markdown(f"###### Logo do Cliente")
@@ -412,7 +412,7 @@ with body_center_col:
                     with open(spot_image, "wb") as f:
                         f.write(new_spot_image.getvalue())
                     st.success("Imagens alteradas com sucesso")
-                    st.rerun()
+                    st.experimental_rerun()
 
 
 with body_left_col:    
