@@ -315,7 +315,7 @@ def df_to_xlsx(df):
     df = pd.DataFrame(df)
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name=f'Sheet 1', index=False)
-        writer.save()
+        writer.close()
         processed_data = buffer.getvalue()
         return processed_data
     
