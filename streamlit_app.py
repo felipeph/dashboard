@@ -344,13 +344,13 @@ with body_center_col:
             
             with st.expander("Arquivos para Exportação", expanded=False):
                 st.dataframe(spot_variables_data_df, use_container_width=True)
-                xlsx_to_download = fd.df_to_xlsx(spot_variables_data_df)
-                download_xlsx_button = st.download_button(
-                    label="Baixar arquivo XLSX",
-                    data=xlsx_to_download,
-                    file_name=f'{st.session_state.spot_selected_name}-{variable_name}.xlsx',
-                    mime='application/vnd.ms-excel'
-                    )
+                # xlsx_to_download = fd.df_to_xlsx(spot_variables_data_df)
+                # download_xlsx_button = st.download_button(
+                #     label="Baixar arquivo XLSX",
+                #     data=xlsx_to_download,
+                #     file_name=f'{st.session_state.spot_selected_name}-{variable_name}.xlsx',
+                #     mime='application/vnd.ms-excel'
+                #     )
                 
                 csv_for_download = fd.df_to_csv(spot_variables_data_df)
                 st.download_button(
