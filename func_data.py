@@ -4,7 +4,9 @@ import pandas as pd
 import pytz
 from pathlib import Path
 from datetime import datetime, timedelta
-
+from io import BytesIO
+from pyxlsb import open_workbook as open_xlsb
+import xlsxwriter
 
 def convert_date_time(df):
     df = pd.DataFrame(df)
@@ -290,4 +292,39 @@ def csv_for_spot_list(spots_list_api, csv_file_name):
     spot_variables_df_custom = pd.read_csv(csv_file_name)
     
     return spot_variables_df_custom
+
+
+
+
+@st.cache_data
+def to_excel(df, spot_selected, variable_name):
+    sheet_name = f'{spot_selected}-{variable_name}'
+    df = pd.DataFrame(df)
+    output = BytesIO()
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(writer, index=False, sheet_name=sheet_name)
+    workbook = writer.book
+    worksheet = writer.sheets[sheet_name]
+    writer.save()
+    processed_data = output.getvalue()
+    return processed_data
+
+@st.cache_data
+def df_to_xlsx(df):
+    buffer = BytesIO()
+    df = pd.DataFrame(df)
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        df.to_excel(writer, sheet_name=f'Sheet 1', index=False)
+        writer.save()
+        processed_data = buffer.getvalue()
+        return processed_data
+    
+@st.cache_data
+def df_to_csv(df):
+    df = pd.DataFrame(df)
+    return df.to_csv(index=False).encode('utf-8')
+
+
+
+
     

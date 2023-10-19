@@ -342,6 +342,25 @@ with body_center_col:
             
             f.plot_dataframe_lines(spot_variables_data_df, variable_name, alarm_alert, alarm_critical)
             
+            with st.expander("Arquivos para Exportação", expanded=False):
+                st.dataframe(spot_variables_data_df, use_container_width=True)
+                xlsx_to_download = fd.df_to_xlsx(spot_variables_data_df)
+                download_xlsx_button = st.download_button(
+                    label="Baixar arquivo XLSX",
+                    data=xlsx_to_download,
+                    file_name=f'{st.session_state.spot_selected_name}-{variable_name}.xlsx',
+                    mime='application/vnd.ms-excel'
+                    )
+                
+                csv_for_download = fd.df_to_csv(spot_variables_data_df)
+                st.download_button(
+                    label="Baixar aquivo CSV",
+                    data=csv_for_download,
+                    file_name=f'{st.session_state.spot_selected_name}_{variable_name}.csv',
+                    mime='text/csv',
+                )
+
+            
             with tab_config:
                 
                 if st.session_state.user_password == st.secrets["senha_config"]:
