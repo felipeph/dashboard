@@ -309,11 +309,11 @@ def to_excel(df, spot_selected, variable_name):
     processed_data = output.getvalue()
     return processed_data
 
-@st.cache_data
+@st.cache_data()
 def df_to_xlsx(df):
     buffer = BytesIO()
     df = pd.DataFrame(df)
-    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name=f'Sheet 1', index=False)
         writer.save()
         processed_data = buffer.getvalue()
