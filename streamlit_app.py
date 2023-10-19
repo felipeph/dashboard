@@ -344,7 +344,7 @@ with body_center_col:
             
             with st.expander("Arquivos para Exportação", expanded=False):
                 st.dataframe(spot_variables_data_df, use_container_width=True)
-                xlsx_to_download = fd.df_to_xlsx(spot_variables_data_df)
+                xlsx_to_download = fd.df_to_xlsx(spot_variables_data_df, variable_name)
                 download_xlsx_button = st.download_button(
                     label="Baixar arquivo XLSX",
                     data=xlsx_to_download,

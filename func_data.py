@@ -7,6 +7,11 @@ from datetime import datetime, timedelta
 from io import BytesIO
 from pyxlsb import open_workbook as open_xlsb
 import xlsxwriter
+import re
+
+
+def variable_name_clean(variable_name):
+    return re.sub(r'[^A-Za-z0-9]+', '_', variable_name)
 
 def convert_date_time(df):
     df = pd.DataFrame(df)
@@ -310,11 +315,12 @@ def to_excel(df, spot_selected, variable_name):
     return processed_data
 
 @st.cache_data
-def df_to_xlsx(df):
+def df_to_xlsx(df, variable_name):
     buffer = BytesIO()
     df = pd.DataFrame(df)
+    sheet_name = variable_name_clean(variable_name)
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        df.to_excel(writer, sheet_name=f'Sheet 1', index=False)
+        df.to_excel(writer, sheet_name=sheet_name, index=False)
         writer.close()
         processed_data = buffer.getvalue()
         return processed_data
@@ -323,6 +329,10 @@ def df_to_xlsx(df):
 def df_to_csv(df):
     df = pd.DataFrame(df)
     return df.to_csv(index=False).encode('utf-8')
+
+
+    
+
 
 
 
