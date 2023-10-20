@@ -124,13 +124,16 @@ with body_left_col:
     
     st.markdown(f'<div align="left"><h1 style="color:#2A4B80; display: inline">{p["left_column"]["title"]}</h1><h5 style="color:#2A4B80; ">CÓDIGO: {p["left_column"]["code"]}</h5></div>', unsafe_allow_html=True)
     
-    st.markdown(f'###### {p["left_column"]["platform"]}')
+    st.markdown(f'#### {p["left_column"]["platform"]}')
     
     #st.markdown("###### MOINHO DE BOLAS - 5330 MO. 01")
     
+    st.markdown(f'##### {p["left_column"]["title_radio"]}')
+    
     # Lista de itens para escolha
     st.session_state.spot_selected_name = st.radio(label=f'**{p["left_column"]["title_radio"]}**',
-                                                   options=spots_list_df["spot_name"])
+                                                   options=spots_list_df["spot_name"],
+                                                   label_visibility="collapsed")
     
     # Filtra o data frame para apenas a linha que contém o mesmo nome escolhido pelo usuário
     spot_id_selected = spots_list_df.loc[spots_list_df["spot_name"] == st.session_state.spot_selected_name]
