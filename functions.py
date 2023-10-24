@@ -116,5 +116,20 @@ def plot_dataframe_lines(df, variable_name, alarm_alert, alarm_critical):
         height=250,
     )
     
+    fig.update_traces(hovertemplate=None)
+
+    fig.update_layout(hovermode="x unified")
+        
+    fig.update_layout(
+        hoverlabel=dict(
+            bgcolor="white",
+            font_size=16,
+        )
+    )
     
-    st.plotly_chart(fig, theme="streamlit", use_container_width=True)
+    config = {'displayModeBar': True,
+              'displaylogo': False,
+              'modeBarButtonsToRemove': ['zoom', 'pan', 'autoScale', 'zoomIn', 'zoomOut'],
+              }
+    
+    st.plotly_chart(fig, theme="streamlit", use_container_width=True, config = config)

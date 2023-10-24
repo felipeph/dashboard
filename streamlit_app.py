@@ -329,7 +329,7 @@ with body_center_col:
             fig.update_layout(height=number_of_variables*30)
             #fig.update_layout(title=variable_name)
             fig.update_layout(showlegend=False)
-            config = {'staticPlot': True}
+            config = {'staticPlot': True,}
             
             
             
