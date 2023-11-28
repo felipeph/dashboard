@@ -26,7 +26,7 @@ def remove_top_padding():
     st.markdown(
         """
     <style>
-        [data-testid="block-container"] {
+        [data-testid="stAppViewContainer"] {
             top: -120px;
         }
         
