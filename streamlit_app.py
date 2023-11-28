@@ -13,6 +13,8 @@ from pathlib import Path
 # Pandas to manipulate the data
 import pandas as pd
 
+import plotly.express as px
+
 # Time to reload the app every 10 min
 import time
 
@@ -82,20 +84,36 @@ spots_list_df = fd.csv_for_spot_list(spots_list_df, spots_list_csv)
 
 #......................... HEADER ......................................................
 # Sticky header with the logo and title of the page
-header = st.container()
+# header = st.container()
 
-with header:
-    header_left_col, header_center_col, header_right_col = header.columns([3,5,2], gap="small")
-    header_left_col.image(my_logo, use_column_width=True)
-    #header_center_col.markdown("""<div align="left"><h1 style="color:#2A4B80; display: inline">ACODATA®</h1><h6 style="color:#2A4B80; display: inline">CÓDIGO: 645205</h6></div>""", unsafe_allow_html=True)
-    #header_right_col.image(client_logo, use_column_width="auto")
-    header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
-    ### Custom CSS for the sticky header
-    fs.sticky_header()
+# with header:
+#     header_left_col, header_center_col, header_right_col = header.columns([3,5,2], gap="small")
+#     header_left_col.image(my_logo, use_column_width=True)
+#     #header_center_col.markdown("""<div align="left"><h1 style="color:#2A4B80; display: inline">ACODATA®</h1><h6 style="color:#2A4B80; display: inline">CÓDIGO: 645205</h6></div>""", unsafe_allow_html=True)
+#     #header_right_col.image(client_logo, use_column_width="auto")
+#     header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
+#     ### Custom CSS for the sticky header
+#     fs.sticky_header()
 #---------------------------------------------------------------------------------------
 
+header_new = st.container()
 
+with header_new:
+    header_col_left, header_col_center, header_col_right = header_new.columns([2,2,6], gap="medium")
+    
+with header_col_left:
+    st.markdown(f'<div align="center"><h1 style="color:#2A4B80; display: inline">{p["left_column"]["title"]}</h1><h5 style="color:#2A4B80; ">MONITORAMENTO DE ATIVOS</h5></div>', unsafe_allow_html=True)
+    
+with header_col_right:    
+    st.markdown(f'<h5 style="color:#2A4B80; ">CÓDIGO: {p["left_column"]["code"]}</h5>', unsafe_allow_html=True)
+    #st.markdown("###### MOINHO DE BOLAS - 5330 MO. 01")
+    st.markdown(f'<h5 style="color:#2A4B80; "> {p["left_column"]["title_radio"]}</h5>', unsafe_allow_html=True)
 
+with header_col_center:
+    st.markdown(f'<div align="center"><h2> {p["left_column"]["platform"]}</h2>', unsafe_allow_html=True)
+
+with header_new:
+    st.divider()
 
 
 
@@ -105,30 +123,34 @@ with header:
 # The body of the page with three columns
 body = st.container()
 with body:
-    body_left_col, body_center_col = body.columns([3,7], gap="small")
+    col_overview, col_spot_select, col_data_viewer = body.columns([2,2,6], gap="medium")
 #---------------------------------------------------------------------------------------
 
+with col_overview:
+    box_reliability_gauge = st.container()
+    box_times_status = st.container()
+    box_machine_image = st.container()
 
-
-
-
-
-
-
+with box_times_status:
+    col_working_hours, col_stopped_hours = st.columns([1,1], gap="small")
+    
 
 
 # ....................... LEFT COLUMN: SELECT SPOT  .........................................................
-with body_left_col:
+with col_spot_select:
     
     #st.subheader("CÓDIGO: 645205")
     
-    st.markdown(f'<div align="left"><h1 style="color:#2A4B80; display: inline">{p["left_column"]["title"]}</h1><h5 style="color:#2A4B80; ">CÓDIGO: {p["left_column"]["code"]}</h5></div>', unsafe_allow_html=True)
+    # st.markdown(f'<div align="left"><h1 style="color:#2A4B80; display: inline">{p["left_column"]["title"]}</h1><h5 style="color:#2A4B80; ">CÓDIGO: {p["left_column"]["code"]}</h5></div>', unsafe_allow_html=True)
     
-    st.markdown(f'#### {p["left_column"]["platform"]}')
+    # st.markdown(f'#### {p["left_column"]["platform"]}')
     
-    #st.markdown("###### MOINHO DE BOLAS - 5330 MO. 01")
+    # #st.markdown("###### MOINHO DE BOLAS - 5330 MO. 01")
     
-    st.markdown(f'##### {p["left_column"]["title_radio"]}')
+    # st.markdown(f'##### {p["left_column"]["title_radio"]}')
+    
+    
+    st.markdown(f'##### Pontos de Monitoramento')
     
     # Lista de itens para escolha
     st.session_state.spot_selected_name = st.radio(label=f'**{p["left_column"]["title_radio"]}**',
@@ -167,11 +189,16 @@ spot_variables_df_custom = fd.csv_for_spot_variables(spot_variables_df_api, csv_
 
 
 # ................ CENTRAL COLUMN: PLOTS ...................................................................
-with body_center_col:
+with col_data_viewer:
     
-    tab_image, tab_plots, tab_config = st.tabs([p["center_column"]["tabs"]["tab_image"], 
-                                                p["center_column"]["tabs"]["tab_plots"], 
-                                                p["center_column"]["tabs"]["tab_config"]])
+    # tab_image, tab_plots, tab_config = st.tabs([p["center_column"]["tabs"]["tab_image"], 
+    #                                             p["center_column"]["tabs"]["tab_plots"], 
+    #                                             p["center_column"]["tabs"]["tab_config"]])
+    
+    tab_plots, tab_config = st.tabs([p["center_column"]["tabs"]["tab_plots"],
+                                     p["center_column"]["tabs"]["tab_config"]])
+
+
     
     with tab_config:
         st.session_state.user_password = st.text_input(label="Senha de acesso às configurações", type="password")
@@ -184,12 +211,10 @@ with body_center_col:
             with tab_config_col_1:
                 st.markdown(f'###### {p["center_column"]["tab_config"]["title"]}')
             
-    with tab_image:
-        st.image(spot_image, use_column_width=True)
+    # with tab_image:
+    #     st.image(spot_image, use_column_width=True)
     
     with tab_plots:
-        
-
         
         st.markdown(f"#### {st.session_state.spot_selected_name}")    
 
@@ -294,9 +319,9 @@ with body_center_col:
             
             last_row_values = last_row.values.tolist()
 
-            values_to_evalute = last_row_values + [float(alarm_critical)]
+            values_to_evaluate = last_row_values + [float(alarm_critical)]
 
-            max_x_value = max(values_to_evalute)
+            max_x_value = max(values_to_evaluate)
 
             def assign_color(value):
                 if value > alarm_critical:
@@ -339,12 +364,12 @@ with body_center_col:
             
             fig.update_layout(yaxis=dict(tickfont=dict(size=16, color="black")))
 
-            body_left_col.markdown(f"###### {variable_name}")
-            body_left_col.plotly_chart(fig, theme="streamlit", use_container_width=True, config = config)
+            col_spot_select.markdown(f"###### {variable_name}")
+            col_spot_select.plotly_chart(fig, theme="streamlit", use_container_width=True, config = config)
             
             
             f.plot_dataframe_lines(spot_variables_data_df, variable_name, alarm_alert, alarm_critical)
-            
+                        
             with st.expander("Arquivos para Exportação", expanded=False):
                 st.dataframe(spot_variables_data_df, use_container_width=True)
                 xlsx_to_download = fd.df_to_xlsx(spot_variables_data_df, variable_name)
@@ -464,16 +489,54 @@ with body_center_col:
                         st.experimental_rerun()
 
 
-with body_left_col:    
+with col_spot_select:    
     st.caption(f"Atualizado em {last_timestamp}")               
 
+    
+
+with box_machine_image:
+    # st.write("Imagem dos Pontos de Monitoramento")
+    st.image(image="pontos_monitoramento.png", use_column_width=True)
 
 
+last_30_days_df = fd.fetch_data_last_30_days(spot_id=219, global_data_id=655, api_key=api_key)
+summed_df = fd.sum_values_except_timestamp(last_30_days_df)
+time_diff_df = fd.calculate_time_diff(summed_df)
+time_working, time_stopped = fd.total_time_above_or_below_minimum(time_diff_df, 1)
+total_failures = fd.count_failures(summed_df, 0.8)
+total_time = time_stopped + time_working
+mtbf = total_time / total_failures
+
+
+with col_working_hours:
+    st.metric(label="###### Funcionando", value=f"{int(time_working)}h", delta=None)
+
+with col_stopped_hours:
+    st.metric(label="###### Parado", value=f"{int(time_stopped)}h", delta=None)
+    
+with box_times_status:
+    time_working_percentual = time_working / (time_working + time_stopped)
+    # st.progress(value=time_working_percentual, text=f"{int(time_working_percentual * 100)}%")
+
+with box_reliability_gauge:
+    st.markdown(f"##### Disponibilidade")
+    reliability_gauge = go.Figure(go.Indicator(
+        mode = "gauge+number",
+        value = time_working_percentual * 100,
+        domain = {'x': [0, 1], 'y': [0, 1]},
+        gauge = {'axis': {'range': [None, 100]}}
+        ))
+    reliability_gauge.update_layout(
+        margin=dict(t=0, b=0),
+        height=200,  # Ajuste a altura conforme necessário
+        font=dict(size=16, color="black")
+    )
+    
+    st.plotly_chart(figure_or_data=reliability_gauge, use_container_width=True)
+    
+with box_times_status:
+    st.metric(label="###### MTBF", value=f"{int(mtbf)}h")
 
 # while True:
 #     time.sleep(600)
 #     st.experimental_rerun()
-
-
-                # st.image("logo_usiminas.png", use_column_width=True)
-                # st.image("pontos_monitoramento.png", use_column_width=True)

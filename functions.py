@@ -133,3 +133,5 @@ def plot_dataframe_lines(df, variable_name, alarm_alert, alarm_critical):
               }
     
     st.plotly_chart(fig, theme="streamlit", use_container_width=True, config = config)
+    
+

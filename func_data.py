@@ -8,6 +8,7 @@ from io import BytesIO
 from pyxlsb import open_workbook as open_xlsb
 import xlsxwriter
 import re
+import time
 
 
 def variable_name_clean(variable_name):
@@ -201,18 +202,13 @@ def fetch_data_for_time_interval(spot_id, global_data_id, date_interval, api_key
         - Clear empty columns
         - Return the DataFrame
     """
-    url = f"https://api.iotebe.com/v2/spot/{spot_id}/ng1vt/global_data/{global_data_id}/data"
-    
+    url = f"https://api.iotebe.com/v2/spot/{spot_id}/ng1vt/global_data/{global_data_id}/data"  
     timezone_br = pytz.timezone('America/Sao_Paulo')
-    
     now_datetime = datetime.now(timezone_br)
     
     start_datetime = now_datetime - timedelta(days=date_interval)
-    
     now_timestamp = int(now_datetime.timestamp())
-    
     start_timestamp = int(start_datetime.timestamp())
-
     
     querystring = {"start_date": str(start_timestamp), "end_date": str(now_timestamp)}
     
@@ -220,9 +216,85 @@ def fetch_data_for_time_interval(spot_id, global_data_id, date_interval, api_key
     "x-api-key": api_key,
     "Accept": "application/json"
     }
+    
     response = requests.get(url, headers=headers, params=querystring)
+    
     spot_variable_data_info = response.json()
     spot_variable_data_df = pd.DataFrame(spot_variable_data_info)
+    spot_variable_data_df = convert_date_time(spot_variable_data_df)
+    spot_variable_data_df_clean = clear_empty_columns(spot_variable_data_df)
+    return spot_variable_data_df_clean
+
+
+@st.cache_data
+def fetch_data_last_30_days(spot_id, global_data_id, api_key):
+    """
+    Fetch the data about a variable in that given spot, clean it and return it into a DataFrame with the configurations to create the plot.
+    
+    Args:
+        spot_id (str): The ID of the selected spot
+        global_data_id (str): The ID of the variable of that spot to inspect.
+        date_interval (int): Number of days from now to inspect.
+    
+    Returns:
+        df (Pandas DataFrame): Cleaned DataFrame with the data of that time interval.
+        
+    Details:
+        - Create the URL to request the API
+        - Get the timezone of Brazil
+        - Get the timestamp from now in Brazil timezone
+        - Use timedelta to get the timestamp of the start date
+        - Do the request with the start and end date as parameters
+        - Get the JSON from the response
+        - Turn the JSON into pandas DataFrame
+        - Convert the datetime columns to datetime type
+        - Clear empty columns
+        - Return the DataFrame
+    """
+    url = f"https://api.iotebe.com/v2/spot/{spot_id}/ng1vt/global_data/{global_data_id}/data"  
+    timezone_br = pytz.timezone('America/Sao_Paulo')
+    now_datetime = datetime.now(timezone_br)
+    
+    first_15_days_start_datetime = now_datetime - timedelta(days=15)
+    first_15_days_end_timestamp = int(now_datetime.timestamp())
+    first_15_days_start_timestamp = int(first_15_days_start_datetime.timestamp())
+    
+    querystring = {"start_date": str(first_15_days_start_timestamp), 
+                   "end_date": str(first_15_days_end_timestamp)}
+    
+    headers = {
+    "x-api-key": api_key,
+    "Accept": "application/json"
+    }
+    
+    first_15_days_response = requests.get(url, headers=headers, params=querystring)
+    
+    first_15_days_json = first_15_days_response.json()
+    first_15_days_df = pd.DataFrame(first_15_days_json)
+    
+    last_15_days_end_datetime = first_15_days_start_datetime
+    last_15_days_end_timestamp = int(last_15_days_end_datetime.timestamp())
+    
+    last_15_days_start_datetime = last_15_days_end_datetime - timedelta(days=15)
+    last_15_days_start_timestamp = int(last_15_days_start_datetime.timestamp())
+    
+    
+    querystring = {"start_date": str(last_15_days_start_timestamp), 
+                   "end_date": str(last_15_days_end_timestamp)}
+    
+    headers = {
+    "x-api-key": api_key,
+    "Accept": "application/json"
+    }
+    
+    last_15_days_response = requests.get(url, headers=headers, params=querystring)
+    last_15_days_json = last_15_days_response.json()
+    last_15_days_df = pd.DataFrame(last_15_days_json)    
+    
+    last_30_days_df = pd.merge(last_15_days_df, first_15_days_df, how="outer")
+    
+    
+    spot_variable_data_df = pd.DataFrame(last_30_days_df)
     spot_variable_data_df = convert_date_time(spot_variable_data_df)
     spot_variable_data_df_clean = clear_empty_columns(spot_variable_data_df)
     return spot_variable_data_df_clean
@@ -286,16 +358,12 @@ def csv_for_spot_list(spots_list_api, csv_file_name):
     
     """
     spots_list_api = pd.DataFrame(spots_list_api)
-
     csv_file_path = Path(csv_file_name)
-
     if csv_file_path.is_file():
         pass
     else:
         spots_list_api.to_csv(csv_file_name, index=False, encoding="utf-8")
-
-    spot_variables_df_custom = pd.read_csv(csv_file_name)
-    
+    spot_variables_df_custom = pd.read_csv(csv_file_name) 
     return spot_variables_df_custom
 
 
@@ -330,11 +398,107 @@ def df_to_csv(df):
     df = pd.DataFrame(df)
     return df.to_csv(index=False).encode('utf-8')
 
+@st.cache_data
+def calculate_time_elapsed(df):
+    df = pd.DataFrame(df)
+    if 'timestamp' not in df.columns:
+        raise ValueError("The DataFrame must contain a 'timestamp' column.")
 
+    df_sorted = df.sort_values('timestamp')
+
+    # Get the first and last timestamps
+    first_timestamp = df_sorted['timestamp'].iloc[0]
+    last_timestamp = df_sorted['timestamp'].iloc[-1]
+
+    # Calculate the time difference
+    time_elapsed = last_timestamp - first_timestamp
+
+    return time_elapsed
+
+@st.cache_data    
+def sum_values_except_timestamp(df):
+    df = pd.DataFrame(df)
     
+    # Check if 'timestamp' column is present
+    if 'timestamp' not in df.columns:
+        raise ValueError("The DataFrame must contain a 'timestamp' column.")
 
+    # Sum all columns except 'timestamp'
+    sum_result = df.drop(columns=['timestamp']).sum(axis=1)
 
+    # Create a new DataFrame with the timestamp and the sum result
+    sum_df = pd.DataFrame({'timestamp': df['timestamp'], 
+                              'sum_values': sum_result})
 
+    return sum_df
 
-
+@st.cache_data
+def calculate_time_diff(df):
+    df = pd.DataFrame(df)
     
+    # Assuming 'timestamp' is the name of your datetime column
+    if 'timestamp' not in df.columns:
+        raise ValueError("The DataFrame must contain a 'timestamp' column.")
+
+    # Sort the DataFrame by the 'timestamp' column
+    df_sorted = df.sort_values('timestamp')
+
+    # Calculate the time difference between consecutive records
+    time_diff = df_sorted['timestamp'].diff()
+
+    # Convert time differences to seconds 
+    time_diff_seconds = time_diff.dt.total_seconds()
+
+    # Create a new column with the time differences in seconds
+    df_sorted['time_diff'] = time_diff_seconds
+
+    return df_sorted
+
+@st.cache_data
+def total_time_above_or_below_minimum(df, minimum_value):
+    df = pd.DataFrame(df)
+    
+    if 'timestamp' not in df.columns or 'sum_values' not in df.columns or 'time_diff' not in df.columns:
+        raise ValueError("The DataFrame must contain 'timestamp', 'sum_values', and 'time_diff' columns.")
+
+    # Filter records based on the minimum value
+    above_min_value = df[df['sum_values'] > minimum_value]
+    below_min_value = df[df['sum_values'] <= minimum_value]
+
+    # Calculate the total time difference for records above the minimum value
+    total_time_diff_above_min = above_min_value['time_diff'].sum() / 3600
+
+    # Calculate the total time difference for records below or equal to the minimum value
+    total_time_diff_below_min = below_min_value['time_diff'].sum() / 3600
+
+    return total_time_diff_above_min, total_time_diff_below_min
+
+@st.cache_data
+def count_failures(dataframe, min_value):
+    """
+    Count the number of failure events in a DataFrame based on a specified minimum value.
+
+    Parameters:
+    - dataframe (pd.DataFrame): The input DataFrame containing a 'timestamp' column and a 'sum_values' column.
+    - min_value (float, optional): The minimum value used to define failure events.
+
+    Returns:
+    - int: The total number of failure events in the DataFrame.
+    """
+
+    dataframe = pd.DataFrame(dataframe)
+    # Add a column indicating if there is a failure
+    dataframe['failure'] = dataframe['sum_values'] < min_value
+    
+    # Filter only the points where "failure" is true
+    fail_df = dataframe[dataframe['failure']]
+    
+    # Add a column indicating the start of a failure
+    dataframe['failure_shifted'] = dataframe['failure'].shift()
+    dataframe['failure_shifted_inverted'] = dataframe['failure_shifted'] == False
+    dataframe['failure_start'] = dataframe['failure'] & dataframe['failure_shifted_inverted']
+    
+    # Count how many times the value True appears in the 'failure_start' column
+    total_failures = dataframe['failure_start'].sum()
+    
+    return total_failures
