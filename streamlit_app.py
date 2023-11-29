@@ -84,16 +84,19 @@ spots_list_df = fd.csv_for_spot_list(spots_list_df, spots_list_csv)
 
 #......................... HEADER ......................................................
 # Sticky header with the logo and title of the page
-# header = st.container()
+header = st.container()
 
-# with header:
-#     header_left_col, header_center_col, header_right_col = header.columns([3,5,2], gap="small")
-#     header_left_col.image(my_logo, use_column_width=True)
-#     #header_center_col.markdown("""<div align="left"><h1 style="color:#2A4B80; display: inline">ACODATA®</h1><h6 style="color:#2A4B80; display: inline">CÓDIGO: 645205</h6></div>""", unsafe_allow_html=True)
-#     #header_right_col.image(client_logo, use_column_width="auto")
-#     header.write("""<div class='fixed-header'/>""", unsafe_allow_html=True)
-#     ### Custom CSS for the sticky header
-#     fs.sticky_header()
+with header:
+    # header_left_col, header_center_col, header_right_col = header.columns([3,5,2], gap="small")
+    st.markdown(f'<div align="center"><img src="https://www.acoplastbrasil.com.br/wp-content/uploads/2018/12/logo_acoplast.png" alt="Logo Acoplast Brasil" style="width: 250px; height: auto;"></div>', unsafe_allow_html=True)
+
+    # st.image(my_logo)
+    #header_center_col.markdown("""<div align="left"><h1 style="color:#2A4B80; display: inline">ACODATA®</h1><h6 style="color:#2A4B80; display: inline">CÓDIGO: 645205</h6></div>""", unsafe_allow_html=True)
+    #header_right_col.image(client_logo, use_column_width="auto")
+    ### Custom CSS for the sticky header
+    header.markdown("""<div class='fixed-header'/>""", unsafe_allow_html=True)
+
+    fs.sticky_header()
 #---------------------------------------------------------------------------------------
 
 header_new = st.container()
@@ -529,10 +532,10 @@ with box_reliability_gauge:
     reliability_gauge.update_layout(
         margin=dict(t=0, b=0),
         height=200,  # Ajuste a altura conforme necessário
-        font=dict(size=16, color="black")
+        font=dict(size=16, color="black"),
     )
     
-    st.plotly_chart(figure_or_data=reliability_gauge, use_container_width=True)
+    st.plotly_chart(figure_or_data=reliability_gauge, use_container_width=True, config = config)
     
 with box_times_status:
     st.metric(label="###### MTBF", value=f"{int(mtbf)}h")

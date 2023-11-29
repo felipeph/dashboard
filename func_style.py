@@ -25,12 +25,15 @@ def remove_header():
 def remove_top_padding():
     st.markdown(
         """
+ 
     <style>
         [data-testid="stAppViewContainer"] {
-            top: -120px;
+            top: -160px;
         }
         
     </style>
+    
+    
     """,
         unsafe_allow_html=True)
     
@@ -105,7 +108,8 @@ def sticky_header():
         <style>
             div[data-testid="stVerticalBlock"] div:has(div.fixed-header) {
                 position: sticky;
-                top: 0rem;
+                /*top: 0rem;*/
+                top: 160px;
                 background-color: white;
                 z-index: 999;
             }
