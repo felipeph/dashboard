@@ -33,13 +33,17 @@ def timestamp_from_date_interval(date_interval):
 def today():
     timezone_br = pytz.timezone('America/Sao_Paulo')
     now_datetime = datetime.now(timezone_br)
-    return now_datetime
+    #today_datetime = now_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_date = now_datetime.date()
+    return today_date
 
 def n_days_ago(n_days):
     timezone_br = pytz.timezone('America/Sao_Paulo')
     now_datetime = datetime.now(timezone_br)
     n_days_datetime = now_datetime - timedelta(days=n_days)
-    return n_days_datetime
+    #n_days_datetime = n_days_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
+    n_days_date = n_days_datetime.date()
+    return n_days_date
 
 def clear_empty_columns(dataframe):
     df = pd.DataFrame(dataframe)
@@ -177,7 +181,7 @@ def fetch_data_between_dates(spot_id, global_data_id, start_timestamp, end_times
 
 
 
-@st.cache_data(ttl=600)
+@st.cache_data
 def fetch_data_for_time_interval(spot_id, global_data_id, date_interval, api_key):
     """
     Fetch the data about a variable in that given spot, clean it and return it into a DataFrame with the configurations to create the plot.
@@ -304,7 +308,7 @@ def fetch_data_last_30_days(spot_id, global_data_id, api_key):
 
 def csv_for_spot_variables(spot_variables_df_api, csv_file_name):
     """
-    Check if the ir or not a CSV file with the data of an spot and create one if not.
+    Check if the is or not a CSV file with the data of an spot and create one if not.
     It is important for the user customized alarm limits.
     
     Args:
@@ -502,3 +506,24 @@ def count_failures(dataframe, min_value):
     total_failures = dataframe['failure_start'].sum()
     
     return total_failures
+
+
+def read_reliability_csv(csv_filename):
+    reliability_df = pd.read_csv(csv_filename)
+    reliability_df['start_date'] = pd.to_datetime(reliability_df['start_date'])
+    reliability_df['end_date'] = pd.to_datetime(reliability_df['end_date'])
+    reliability_df['start_date'] = reliability_df['start_date'].dt.date
+    reliability_df['end_date'] = reliability_df['end_date'].dt.date    
+    return reliability_df
+
+@st.cache_data
+def get_reliability_end_date(df):
+    end_date = df['end_date'][0]
+    return end_date
+
+
+@st.cache_data
+def get_reliability_start_date(df):
+    start_date = df['start_date'][0]
+    return start_date
+

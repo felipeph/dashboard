@@ -40,9 +40,15 @@ spot_image = "pontos_monitoramento.png"
 
 spots_list_csv = "spots_list.csv"
 
+reliability_csv = "reliability.csv"
+
 days_ago_7 = fd.n_days_ago(7)
 today = fd.today()
+yesterday = fd.n_days_ago(1)
+
 fetch_data_from_date_interval = False
+
+
 
 
 #........................ PAGE CONFIGURATION ............................................
@@ -105,8 +111,11 @@ with header_new:
     header_col_left, header_col_center, header_col_right = header_new.columns([2,2,6], gap="medium")
     
 with header_col_left:
-    st.markdown(f'<div align="center"><h1 style="color:#2A4B80; display: inline">{p["left_column"]["title"]}</h1><h5 style="color:#2A4B80; ">MONITORAMENTO DE ATIVOS</h5></div>', unsafe_allow_html=True)
-    
+    # st.markdown(f'<div align="center"><h1 style="color:#2A4B80; display: inline">{p["left_column"]["title"]}</h1><h5 style="color:#2A4B80; ">MONITORAMENTO DE ATIVOS</h5></div>', unsafe_allow_html=True)
+    st.markdown(f'<div align="center"><h1 style="color:#2A4B80; display: inline;"><span style="font-size: 1em;">ACODATA®</span><span style="font-size: 0.6em;">one</span></h1><h5 style="color:#2A4B80; ">MONITORAMENTO DE ATIVOS</h5></div>', unsafe_allow_html=True)
+
+
+
 with header_col_right:    
     st.markdown(f'<h5 style="color:#2A4B80; ">CÓDIGO: {p["left_column"]["code"]}</h5>', unsafe_allow_html=True)
     #st.markdown("###### MOINHO DE BOLAS - 5330 MO. 01")
@@ -125,6 +134,13 @@ with header_new:
 #...................... COLUMNS OF THE BODY ............................................
 # The body of the page with three columns
 body = st.container()
+
+
+footer_tests = st.container()
+
+
+
+
 with body:
     col_overview, col_spot_select, col_data_viewer = body.columns([2,2,6], gap="medium")
 #---------------------------------------------------------------------------------------
@@ -137,6 +153,32 @@ with col_overview:
 with box_times_status:
     col_working_hours, col_stopped_hours = st.columns([1,1], gap="small")
     
+with box_reliability_gauge:
+    reliability_df = fd.read_reliability_csv(reliability_csv)
+    reliability = reliability_df['reliability'][0]
+
+    st.markdown(f'<div align="center"><h5>CONFIABILIDADE</h5></div>', unsafe_allow_html=True)
+    # st.markdown(f"##### CONFIABILIDADE")
+    reliability_gauge = go.Figure(go.Indicator(
+        mode = "gauge+number",
+        value = reliability * 100,
+        domain = {'x': [0, 1], 'y': [0, 1]},
+        gauge = {'axis': {'range': [None, 100]}}
+        ))
+    reliability_gauge.update_layout(
+        margin=dict(t=30, b=20, l=40, r=40),
+        height=150,  # Ajuste a altura conforme necessário
+        font=dict(size=16, color="black")
+    )
+    
+    config = {'staticPlot': True,}
+    
+    st.plotly_chart(figure_or_data=reliability_gauge, use_container_width=True, config = config)
+
+
+with box_machine_image:
+    # st.write("Imagem dos Pontos de Monitoramento")
+    st.image(image="pontos_monitoramento.png", use_column_width=True)
 
 
 # ....................... LEFT COLUMN: SELECT SPOT  .........................................................
@@ -186,9 +228,46 @@ spot_variables_df_custom = fd.csv_for_spot_variables(spot_variables_df_api, csv_
 # ---------------------------------------------------------------------------------------------------------
 
 
+# with footer_tests:
+#     with st.expander(label="Testes"):
+#         st.write(today)
+#         st.write(yesterday)
+#         reliability_df = fd.read_reliability_csv(reliability_csv)
+#         st.dataframe(reliability_df)
+#         start_date = fd.get_reliability_start_date(reliability_df)
+#         end_date = fd.get_reliability_end_date(reliability_df)
+#         if (today > end_date):
+#             st.write("Fazer chamada para captura de dados")
+#         else:
+#             st.write("Captura de dados desnecessária")
+#         st.write(end_date)
 
-
-
+#         st.dataframe(spots_list_df)
+#         st.dataframe(spot_variables_df_api)
+#         st.dataframe(spot_variables_df_custom)
+        
+#         first_spot = spots_list_df['spot_id'][0]
+#         st.write(first_spot)
+        
+#         first_variable = spot_variables_df_custom['global_data_id'][0]
+#         st.write(first_variable)
+        
+#         first_variable_alarm = spot_variables_df_custom['alarm_alert'][0]
+#         st.write(first_variable_alarm)
+        
+#         start_end_date_tuple = (start_date, end_date)
+#         start_date_timestamp, end_date_timestamp = fd.timestamp_from_date_interval(start_end_date_tuple)
+        
+#         start_date_end_date_df = fd.fetch_data_between_dates(first_spot, 
+#                                                              first_variable, 
+#                                                              start_date_timestamp, 
+#                                                              end_date_timestamp, 
+#                                                              api_key)
+#         st.dataframe(start_date_end_date_df)
+        
+#         csv_file_name_data_test = f'reliability_{first_spot}_{first_variable}.csv'
+#         start_date_end_date_df.to_csv(csv_file_name_data_test, index=False)
+        
 
 
 # ................ CENTRAL COLUMN: PLOTS ...................................................................
@@ -357,7 +436,6 @@ with col_data_viewer:
             fig.update_layout(height=number_of_variables*30)
             #fig.update_layout(title=variable_name)
             fig.update_layout(showlegend=False)
-            config = {'staticPlot': True,}
             
             
             
@@ -497,49 +575,35 @@ with col_spot_select:
 
     
 
-with box_machine_image:
-    # st.write("Imagem dos Pontos de Monitoramento")
-    st.image(image="pontos_monitoramento.png", use_column_width=True)
 
 
-last_30_days_df = fd.fetch_data_last_30_days(spot_id=219, global_data_id=655, api_key=api_key)
-summed_df = fd.sum_values_except_timestamp(last_30_days_df)
-time_diff_df = fd.calculate_time_diff(summed_df)
-time_working, time_stopped = fd.total_time_above_or_below_minimum(time_diff_df, 1)
-total_failures = fd.count_failures(summed_df, 0.8)
-total_time = time_stopped + time_working
-mtbf = total_time / total_failures
+# last_30_days_df = fd.fetch_data_last_30_days(spot_id=219, global_data_id=655, api_key=api_key)
+# summed_df = fd.sum_values_except_timestamp(last_30_days_df)
+# time_diff_df = fd.calculate_time_diff(summed_df)
+# time_working, time_stopped = fd.total_time_above_or_below_minimum(time_diff_df, 1)
+# total_failures = fd.count_failures(summed_df, 0.8)
+# total_time = time_stopped + time_working
+# mtbf = total_time / total_failures
 
 
-with col_working_hours:
-    st.metric(label="###### Funcionando", value=f"{int(time_working)}h", delta=None)
+# with col_working_hours:
+#     st.metric(label="###### Funcionando", value=f"{int(time_working)}h", delta=None)
 
-with col_stopped_hours:
-    st.metric(label="###### Parado", value=f"{int(time_stopped)}h", delta=None)
+# with col_stopped_hours:
+#     st.metric(label="###### Parado", value=f"{int(time_stopped)}h", delta=None)
     
-with box_times_status:
-    time_working_percentual = time_working / (time_working + time_stopped)
-    # st.progress(value=time_working_percentual, text=f"{int(time_working_percentual * 100)}%")
+# with box_times_status:
+#     time_working_percentual = time_working / (time_working + time_stopped)
+#     # st.progress(value=time_working_percentual, text=f"{int(time_working_percentual * 100)}%")
 
-with box_reliability_gauge:
-    st.markdown(f"##### Disponibilidade")
-    reliability_gauge = go.Figure(go.Indicator(
-        mode = "gauge+number",
-        value = time_working_percentual * 100,
-        domain = {'x': [0, 1], 'y': [0, 1]},
-        gauge = {'axis': {'range': [None, 100]}}
-        ))
-    reliability_gauge.update_layout(
-        margin=dict(t=0, b=0),
-        height=200,  # Ajuste a altura conforme necessário
-        font=dict(size=16, color="black"),
-    )
     
-    st.plotly_chart(figure_or_data=reliability_gauge, use_container_width=True, config = config)
-    
-with box_times_status:
-    st.metric(label="###### MTBF", value=f"{int(mtbf)}h")
+# with box_times_status:
+#     st.metric(label="###### MTBF", value=f"{int(mtbf)}h")
 
 # while True:
 #     time.sleep(600)
 #     st.experimental_rerun()
+
+    
+    
+    
