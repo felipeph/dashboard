@@ -157,7 +157,7 @@ with box_reliability_gauge:
     reliability_df = fd.read_reliability_csv(reliability_csv)
     reliability = reliability_df['reliability'][0]
 
-    st.markdown(f'<div align="center"><h5>CONFIABILIDADE</h5></div>', unsafe_allow_html=True)
+    st.markdown(f'<div align="center"><h4>CONFIABILIDADE</h4></div>', unsafe_allow_html=True)
     # st.markdown(f"##### CONFIABILIDADE")
     reliability_gauge = go.Figure(go.Indicator(
         mode = "gauge+number",
@@ -171,7 +171,12 @@ with box_reliability_gauge:
         font=dict(size=16, color="black")
     )
     
-    config = {'staticPlot': True,}
+    reliability_gauge.update_traces(gauge_axis_tickmode="array", selector=dict(type='indicator'))
+    
+    reliability_gauge.update_traces(gauge_axis_tickvals=[0,25,50,75,100], selector=dict(type='indicator'))
+
+    
+    config = {'staticPlot': True}
     
     st.plotly_chart(figure_or_data=reliability_gauge, use_container_width=True, config = config)
 
