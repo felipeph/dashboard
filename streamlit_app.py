@@ -75,9 +75,19 @@ api_key = st.secrets["chave_api"]
 config_password = st.secrets["senha_config"]
 
 # Criação do Dataframe com os dados coletados da lista de spots
-spots_list_df = f.fetch_spots_list(api_key)
+# spots_list_df = f.fetch_spots_list(api_key)
 
-spots_list_df = fd.csv_for_spot_list(spots_list_df, spots_list_csv)
+
+try:
+    spots_list_df = f.fetch_spots_list(api_key)
+    print(spots_list_df)
+    spots_list_df = fd.csv_for_spot_list(spots_list_df, spots_list_csv)
+    print(spots_list_df)
+except ValueError as e:
+    st.error(f"Erro: {e}")
+
+#spots_list_df = fd.csv_for_spot_list(spots_list_df, spots_list_csv)
+
 #---------------------------------------------------------------------------------------
 
 
@@ -226,9 +236,18 @@ with col_spot_select:
 
 # ................... GET VARIABLES FROM THE SPOT .........................................................
 # Coletas as variáveis disponíves em um dado spot
-spot_variables_df_api = fd.fetch_variables_from_spot(st.session_state.spot_id_selected, api_key)
+# spot_variables_df_api = fd.fetch_variables_from_spot(st.session_state.spot_id_selected, api_key)
 
-spot_variables_df_custom = fd.csv_for_spot_variables(spot_variables_df_api, csv_file_name)
+try:
+    spot_variables_df_api = fd.fetch_variables_from_spot(st.session_state.spot_id_selected, api_key)
+    print(spot_variables_df_api)
+    spot_variables_df_custom = fd.csv_for_spot_variables(spot_variables_df_api, csv_file_name)
+    print(spot_variables_df_custom)
+except ValueError as e:
+    st.error(f"Erro: {e}")
+
+
+# spot_variables_df_custom = fd.csv_for_spot_variables(spot_variables_df_api, csv_file_name)
 
 # ---------------------------------------------------------------------------------------------------------
 
@@ -364,15 +383,34 @@ with col_data_viewer:
             
             if fetch_data_from_date_interval:
                 #spot_variables_data_df = fd.fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)
-                spot_variables_data_df = fd.fetch_data_between_dates(spot_id=st.session_state.spot_id_selected,
-                                                                     global_data_id=variable,
-                                                                     start_timestamp=start_timestamp,
-                                                                     end_timestamp=end_timestamp,
-                                                                     api_key=api_key)
+                # spot_variables_data_df = fd.fetch_data_between_dates(spot_id=st.session_state.spot_id_selected,
+                #                                                      global_data_id=variable,
+                #                                                      start_timestamp=start_timestamp,
+                #                                                      end_timestamp=end_timestamp,
+                #                                                      api_key=api_key)
+                
+
+                try:
+                    spot_variables_data_df = fd.fetch_data_between_dates(spot_id=st.session_state.spot_id_selected,
+                                                        global_data_id=variable,
+                                                        start_timestamp=start_timestamp,
+                                                        end_timestamp=end_timestamp,
+                                                        api_key=api_key)
+                    print(spot_variables_data_df)
+                except ValueError as e:
+                    st.error(f"Erro: {e}")
+                
                 
                 #spot_variables_data_df = fd.fetch_data_for_time_interval(st.session_state.spot_id_selected, variable, date_interval, api_key)
             else:
-                spot_variables_data_df = fd.fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)
+                #spot_variables_data_df = fd.fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)
+
+                try:
+                    spot_variables_data_df = fd.fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)
+                    print(spot_variables_data_df)  # ou outro método de exibição no Streamlit
+                except ValueError as e:
+                    st.error(f"Erro: {e}")
+                
             
             # Coleta o nome da variável em questão
             variable_name = spot_variables_df_custom[spot_variables_df_custom["global_data_id"] == variable]["global_data_name"].tolist()[0]

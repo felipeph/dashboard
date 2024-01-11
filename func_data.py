@@ -50,6 +50,35 @@ def clear_empty_columns(dataframe):
     return df.dropna(axis=1, how="all")
 
 
+# @st.cache_data
+# def fetch_spots_list(api_key):
+#     """
+#     Fetch the list of spots available for this API key.
+    
+#     Args:
+#         api_key (str): The API key for the installation.
+        
+#     Returns:
+#         df (pandas dataframe): The Dataframe created with the response for the request of the API.
+    
+#     Details:
+#         - Access the url https://api.iotebe.com/v2/spot with api-key as parameter.
+#         - Uses a requests.get to get a response for the request.
+#         - Open the response as JSON
+#         - Create a Pandas DataFrame from the JSON
+    
+#     """
+#     url = "https://api.iotebe.com/v2/spot"
+#     headers = {
+#         "x-api-key": api_key,
+#         "Accept": "application/json"
+#     }
+#     spots_list_response = requests.get(url, headers=headers)
+#     spots_list_json = spots_list_response.json()  
+#     spots_list_df = pd.DataFrame(spots_list_json)
+#     return spots_list_df
+
+
 @st.cache_data
 def fetch_spots_list(api_key):
     """
@@ -59,24 +88,76 @@ def fetch_spots_list(api_key):
         api_key (str): The API key for the installation.
         
     Returns:
-        df (pandas dataframe): The Dataframe created with the response for the request of the API.
+        df (pandas dataframe): The DataFrame created with the response for the request of the API.
     
     Details:
-        - Access the url https://api.iotebe.com/v2/spot with api-key as parameter.
+        - Access the URL https://api.iotebe.com/v2/spot with api-key as a parameter.
         - Uses a requests.get to get a response for the request.
-        - Open the response as JSON
-        - Create a Pandas DataFrame from the JSON
-    
+        - Checks if the response status code is 200 (OK) before proceeding.
+        - Open the response as JSON.
+        - Create a Pandas DataFrame from the JSON.
+        
+    Raises:
+        ValueError: If the API request is unsuccessful or the response cannot be converted to JSON.
     """
     url = "https://api.iotebe.com/v2/spot"
     headers = {
         "x-api-key": api_key,
         "Accept": "application/json"
     }
-    spots_list_response = requests.get(url, headers=headers)
-    spots_list_json = spots_list_response.json()  
-    spots_list_df = pd.DataFrame(spots_list_json)
-    return spots_list_df
+    
+    try:
+        spots_list_response = requests.get(url, headers=headers)
+        spots_list_response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
+        
+        spots_list_json = spots_list_response.json()
+        spots_list_df = pd.DataFrame(spots_list_json)
+        return spots_list_df
+    except requests.exceptions.RequestException as e:
+        raise ValueError(f"Error fetching data from API: {e}")
+    except Exception as e:
+        raise ValueError(f"Error converting API response to DataFrame: {e}")
+
+
+
+# @st.cache_data
+# def fetch_variables_from_spot(spot_id, api_key):
+#     """
+#     Returns the data available for a given spot.
+    
+#     Args:
+#         spot_id (str): ID of the spot that is being inspected.
+    
+#     Return:
+#         df (Pandas DataFrame): DataFrame with a variable of that sensor in each line.
+    
+#     Example for one line:
+#         - global_data_id: 655
+#         - global_data_name: VELOCIDADE
+#         - alarm_critical: 5.230
+#         - alarm_alert: 3.230
+#         - alarm_status: GREEN
+#         - disable_alarm: 0
+#         - trigger_condition: 1
+    
+#     Details:
+#         - Construct a URL for the API request with the spot_id and api_key.
+#         - Get a response from the API using requests.get
+#         - Open the response as a JSON object.
+#         - Create a Pandas DataFrame from the JSON object.
+#         - Returns the Pandas DataFrame
+#     """
+#     url = f"https://api.iotebe.com/v2/spot/{spot_id}/ng1vt/global_data"
+#     headers = {
+#         "x-api-key": api_key,
+#         "Accept": "application/json"
+#     }
+#     spots_variables_response = requests.get(url, headers=headers)
+#     spots_variables_json = spots_variables_response.json()  
+#     spots_variables_df = pd.DataFrame(spots_variables_json)
+#     return spots_variables_df
+
+
 
 @st.cache_data
 def fetch_variables_from_spot(spot_id, api_key):
@@ -86,7 +167,7 @@ def fetch_variables_from_spot(spot_id, api_key):
     Args:
         spot_id (str): ID of the spot that is being inspected.
     
-    Return:
+    Returns:
         df (Pandas DataFrame): DataFrame with a variable of that sensor in each line.
     
     Example for one line:
@@ -100,38 +181,144 @@ def fetch_variables_from_spot(spot_id, api_key):
     
     Details:
         - Construct a URL for the API request with the spot_id and api_key.
-        - Get a response from the API using requests.get
+        - Get a response from the API using requests.get.
+        - Checks if the response status code is 200 (OK) before proceeding.
         - Open the response as a JSON object.
         - Create a Pandas DataFrame from the JSON object.
-        - Returns the Pandas DataFrame
+        - Returns the Pandas DataFrame.
+        
+    Raises:
+        ValueError: If the API request is unsuccessful or the response cannot be converted to JSON.
     """
     url = f"https://api.iotebe.com/v2/spot/{spot_id}/ng1vt/global_data"
     headers = {
         "x-api-key": api_key,
         "Accept": "application/json"
     }
-    spots_variables_response = requests.get(url, headers=headers)
-    spots_variables_json = spots_variables_response.json()  
-    spots_variables_df = pd.DataFrame(spots_variables_json)
-    return spots_variables_df
+    
+    try:
+        spots_variables_response = requests.get(url, headers=headers)
+        spots_variables_response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
+        
+        spots_variables_json = spots_variables_response.json()
+        spots_variables_df = pd.DataFrame(spots_variables_json)
+        return spots_variables_df
+    except requests.exceptions.RequestException as e:
+        raise ValueError(f"Error fetching data from API: {e}")
+    except Exception as e:
+        raise ValueError(f"Error converting API response to DataFrame: {e}")
 
-@st.cache_data(ttl=600)
+
+
+
+# @st.cache_data(ttl=600)
+# def fetch_data_from_variable_from_spot(spot_id, global_data_id):
+#     """
+#     Fetch the data about a variable in that given spot, clean it and return it into a dataframe
+#     Args:
+#     """
+#     url = f"https://api.iotebe.com/v2/spot/{spot_id}/ng1vt/global_data/{global_data_id}/data"
+#     headers = {
+#     "x-api-key": st.secrets["chave_api"],
+#     "Accept": "application/json"
+#     }
+#     response = requests.get(url, headers=headers)
+#     spot_variable_data_info = response.json()
+#     spot_variable_data_df = pd.DataFrame(spot_variable_data_info)
+#     spot_variable_data_df = convert_date_time(spot_variable_data_df)
+#     spot_variable_data_df_clean = clear_empty_columns(spot_variable_data_df)
+#     return spot_variable_data_df_clean
+
+
+@st.cache_data
 def fetch_data_from_variable_from_spot(spot_id, global_data_id):
     """
-    Fetch the data about a variable in that given spot, clean it and return it into a dataframe
+    Fetch the data about a variable in that given spot, clean it, and return it as a DataFrame.
+    
     Args:
+        spot_id (str): The ID of the selected spot.
+        global_data_id (str): The ID of the variable of that spot to inspect.
+    
+    Returns:
+        df (Pandas DataFrame): Cleaned DataFrame with the data.
+        
+    Details:
+        - Construct a URL for the API request.
+        - Get the response from the API using requests.get.
+        - Checks if the response status code is 200 (OK) before proceeding.
+        - Get the JSON from the response.
+        - Turn the JSON into a pandas DataFrame.
+        - Convert the datetime columns to datetime type.
+        - Clear empty columns.
+        - Return the DataFrame.
+        
+    Raises:
+        ValueError: If the API request is unsuccessful or the response cannot be converted to DataFrame.
     """
     url = f"https://api.iotebe.com/v2/spot/{spot_id}/ng1vt/global_data/{global_data_id}/data"
+    
     headers = {
-    "x-api-key": st.secrets["chave_api"],
-    "Accept": "application/json"
+        "x-api-key": st.secrets["chave_api"],
+        "Accept": "application/json"
     }
-    response = requests.get(url, headers=headers)
-    spot_variable_data_info = response.json()
-    spot_variable_data_df = pd.DataFrame(spot_variable_data_info)
-    spot_variable_data_df = convert_date_time(spot_variable_data_df)
-    spot_variable_data_df_clean = clear_empty_columns(spot_variable_data_df)
-    return spot_variable_data_df_clean
+    
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
+        
+        spot_variable_data_info = response.json()
+        spot_variable_data_df = pd.DataFrame(spot_variable_data_info)
+        spot_variable_data_df = convert_date_time(spot_variable_data_df)
+        spot_variable_data_df_clean = clear_empty_columns(spot_variable_data_df)
+        return spot_variable_data_df_clean
+    except requests.exceptions.RequestException as e:
+        raise ValueError(f"Error fetching data from API: {e}")
+    except Exception as e:
+        raise ValueError(f"Error converting API response to DataFrame: {e}")
+
+
+
+
+# @st.cache_data
+# def fetch_data_between_dates(spot_id, global_data_id, start_timestamp, end_timestamp, api_key):
+#     """
+#     Fetch the data about a variable in that given spot, clean it and return it into a DataFrame with the configurations to create the plot.
+    
+#     Args:
+#         spot_id (str): The ID of the selected spot
+#         global_data_id (str): The ID of the variable of that spot to inspect.
+#         date_interval (int): Number of days from now to inspect.
+    
+#     Returns:
+#         df (Pandas DataFrame): Cleaned DataFrame with the data of that time interval.
+        
+#     Details:
+#         - Create the URL to request the API
+#         - Get the timezone of Brazil
+#         - Get the timestamp from now in Brazil timezone
+#         - Use timedelta to get the timestamp of the start date
+#         - Do the request with the start and end date as parameters
+#         - Get the JSON from the response
+#         - Turn the JSON into pandas DataFrame
+#         - Convert the datetime columns to datetime type
+#         - Clear empty columns
+#         - Return the DataFrame
+#     """
+#     url = f"https://api.iotebe.com/v2/spot/{spot_id}/ng1vt/global_data/{global_data_id}/data"
+    
+    
+#     querystring = {"start_date": str(start_timestamp), "end_date": str(end_timestamp)}
+    
+#     headers = {
+#     "x-api-key": api_key,
+#     "Accept": "application/json"
+#     }
+#     response = requests.get(url, headers=headers, params=querystring)
+#     spot_variable_data_info = response.json()
+#     spot_variable_data_df = pd.DataFrame(spot_variable_data_info)
+#     spot_variable_data_df = convert_date_time(spot_variable_data_df)
+#     spot_variable_data_df_clean = clear_empty_columns(spot_variable_data_df)
+#     return spot_variable_data_df_clean
 
 
 
@@ -141,41 +328,50 @@ def fetch_data_between_dates(spot_id, global_data_id, start_timestamp, end_times
     Fetch the data about a variable in that given spot, clean it and return it into a DataFrame with the configurations to create the plot.
     
     Args:
-        spot_id (str): The ID of the selected spot
+        spot_id (str): The ID of the selected spot.
         global_data_id (str): The ID of the variable of that spot to inspect.
-        date_interval (int): Number of days from now to inspect.
+        start_timestamp (str): The start timestamp for the data retrieval.
+        end_timestamp (str): The end timestamp for the data retrieval.
+        api_key (str): The API key for the installation.
     
     Returns:
         df (Pandas DataFrame): Cleaned DataFrame with the data of that time interval.
         
     Details:
-        - Create the URL to request the API
-        - Get the timezone of Brazil
-        - Get the timestamp from now in Brazil timezone
-        - Use timedelta to get the timestamp of the start date
-        - Do the request with the start and end date as parameters
-        - Get the JSON from the response
-        - Turn the JSON into pandas DataFrame
-        - Convert the datetime columns to datetime type
-        - Clear empty columns
-        - Return the DataFrame
+        - Create the URL to request the API.
+        - Get the response from the API using requests.get.
+        - Checks if the response status code is 200 (OK) before proceeding.
+        - Get the JSON from the response.
+        - Turn the JSON into a pandas DataFrame.
+        - Convert the datetime columns to datetime type.
+        - Clear empty columns.
+        - Return the DataFrame.
+        
+    Raises:
+        ValueError: If the API request is unsuccessful or the response cannot be converted to DataFrame.
     """
     url = f"https://api.iotebe.com/v2/spot/{spot_id}/ng1vt/global_data/{global_data_id}/data"
-    
     
     querystring = {"start_date": str(start_timestamp), "end_date": str(end_timestamp)}
     
     headers = {
-    "x-api-key": api_key,
-    "Accept": "application/json"
+        "x-api-key": api_key,
+        "Accept": "application/json"
     }
-    response = requests.get(url, headers=headers, params=querystring)
-    spot_variable_data_info = response.json()
-    spot_variable_data_df = pd.DataFrame(spot_variable_data_info)
-    spot_variable_data_df = convert_date_time(spot_variable_data_df)
-    spot_variable_data_df_clean = clear_empty_columns(spot_variable_data_df)
-    return spot_variable_data_df_clean
-
+    
+    try:
+        response = requests.get(url, headers=headers, params=querystring)
+        response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
+        
+        spot_variable_data_info = response.json()
+        spot_variable_data_df = pd.DataFrame(spot_variable_data_info)
+        spot_variable_data_df = convert_date_time(spot_variable_data_df)
+        spot_variable_data_df_clean = clear_empty_columns(spot_variable_data_df)
+        return spot_variable_data_df_clean
+    except requests.exceptions.RequestException as e:
+        raise ValueError(f"Error fetching data from API: {e}")
+    except Exception as e:
+        raise ValueError(f"Error converting API response to DataFrame: {e}")
 
 
 
