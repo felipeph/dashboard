@@ -245,7 +245,7 @@ def fetch_variables_from_spot(spot_id, api_key):
 #     return spot_variable_data_df_clean
 
 
-@st.cache_data
+@st.cache_data(ttl=600)
 def fetch_data_from_variable_from_spot(spot_id, global_data_id):
     """
     Fetch the data about a variable in that given spot, clean it, and return it as a DataFrame.
