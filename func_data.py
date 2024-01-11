@@ -9,6 +9,9 @@ from pyxlsb import open_workbook as open_xlsb
 import xlsxwriter
 import re
 import time
+import logging
+
+logging.basicConfig(filename='api_requests.log', level=logging.INFO)
 
 
 def variable_name_clean(variable_name):
@@ -106,8 +109,15 @@ def fetch_spots_list(api_key):
         "Accept": "application/json"
     }
     
+    
+    
     try:
+        start_time = time.time()    
         spots_list_response = requests.get(url, headers=headers)
+        end_time = time.time()
+
+        logging.info(f"API request to {url} - Status: {spots_list_response.status_code}, Time: {end_time - start_time:.2f} seconds")
+        
         spots_list_response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
         
         spots_list_json = spots_list_response.json()
@@ -197,7 +207,12 @@ def fetch_variables_from_spot(spot_id, api_key):
     }
     
     try:
+        start_time = time.time()    
         spots_variables_response = requests.get(url, headers=headers)
+        end_time = time.time()
+
+        logging.info(f"API request to {url} - Status: {spots_variables_response.status_code}, Time: {end_time - start_time:.2f} seconds")
+        
         spots_variables_response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
         
         spots_variables_json = spots_variables_response.json()
@@ -263,7 +278,12 @@ def fetch_data_from_variable_from_spot(spot_id, global_data_id):
     }
     
     try:
+        start_time = time.time()    
         response = requests.get(url, headers=headers)
+        end_time = time.time()
+
+        logging.info(f"API request to {url} - Status: {response.status_code}, Time: {end_time - start_time:.2f} seconds")
+                
         response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
         
         spot_variable_data_info = response.json()
@@ -360,7 +380,12 @@ def fetch_data_between_dates(spot_id, global_data_id, start_timestamp, end_times
     }
     
     try:
+        start_time = time.time()    
         response = requests.get(url, headers=headers, params=querystring)
+        end_time = time.time()
+
+        logging.info(f"API request to {url} - Status: {response.status_code}, Time: {end_time - start_time:.2f} seconds")
+                
         response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
         
         spot_variable_data_info = response.json()

@@ -28,6 +28,9 @@ import func_data as fd
 
 import func_params as fp
 
+
+
+
 params_json_filepath = "params.json"
 
 p = fp.load_params(params_json_filepath)
@@ -57,6 +60,7 @@ fetch_data_from_date_interval = False
 st.set_page_config(page_title= p["page_config"]["page_title"],
                    page_icon="favicon-acoplast.ico",
                    layout="wide",
+                   initial_sidebar_state="collapsed"
                    )
 
 # Removing the header and the footer
@@ -80,9 +84,8 @@ config_password = st.secrets["senha_config"]
 
 try:
     spots_list_df = f.fetch_spots_list(api_key)
-    print(spots_list_df)
+    print("Solicitação de lista de spots realizada com sucesso")
     spots_list_df = fd.csv_for_spot_list(spots_list_df, spots_list_csv)
-    print(spots_list_df)
 except ValueError as e:
     st.error(f"Erro: {e}")
 
@@ -240,9 +243,8 @@ with col_spot_select:
 
 try:
     spot_variables_df_api = fd.fetch_variables_from_spot(st.session_state.spot_id_selected, api_key)
-    print(spot_variables_df_api)
+    print("Solicitação de lista de veriáveis do spot realizada com sucesso")
     spot_variables_df_custom = fd.csv_for_spot_variables(spot_variables_df_api, csv_file_name)
-    print(spot_variables_df_custom)
 except ValueError as e:
     st.error(f"Erro: {e}")
 
@@ -396,7 +398,7 @@ with col_data_viewer:
                                                         start_timestamp=start_timestamp,
                                                         end_timestamp=end_timestamp,
                                                         api_key=api_key)
-                    print(spot_variables_data_df)
+                    print("Solicitação de dados de uma variável entre duas datas realizada com sucesso")
                 except ValueError as e:
                     st.error(f"Erro: {e}")
                 
@@ -407,7 +409,7 @@ with col_data_viewer:
 
                 try:
                     spot_variables_data_df = fd.fetch_data_from_variable_from_spot(st.session_state.spot_id_selected, variable)
-                    print(spot_variables_data_df)  # ou outro método de exibição no Streamlit
+                    print("Solicitação dos dados de uma variável nas últimas 24hrs realizada com sucesso")  # ou outro método de exibição no Streamlit
                 except ValueError as e:
                     st.error(f"Erro: {e}")
                 

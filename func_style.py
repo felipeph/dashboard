@@ -18,6 +18,10 @@ def remove_header():
         [data-testid="stHeader"] {
             display: none
         }
+        
+        [data-testid="collapsedControl"] {
+            display: none
+        }
     </style>
     """,
         unsafe_allow_html=True)
